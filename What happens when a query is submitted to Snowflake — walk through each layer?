@@ -1,0 +1,48 @@
+                ┌──────────────────────────────┐
+                │        Client (User)         │
+                │  SQL Query Submission       │
+                └─────────────┬────────────────┘
+                              │
+                              ▼
+        ┌────────────────────────────────────────────┐
+        │           Cloud Services Layer             │
+        │--------------------------------------------│
+        │ • Authentication & Access Control          │
+        │ • Result Cache Check (24 hrs)              │
+        │ • SQL Parsing                              │
+        │ • Optimization (Cascade Optimizer)         │
+        │ • Partition Pruning (Metadata Layer)       │
+        └─────────────┬──────────────────────────────┘
+                      │ (Optimized Query Plan)
+                      ▼
+        ┌────────────────────────────────────────────┐
+        │           Virtual Warehouse                │
+        │      (Compute Layer - MPP Engine)          │
+        │--------------------------------------------│
+        │ • Distributed Worker Nodes                │
+        │ • Fetch Micro-Partitions                  │
+        │   (Remote Storage → Local SSD Cache)      │
+        │ • Parallel Execution (Pipelined)          │
+        └─────────────┬──────────────────────────────┘
+                      │
+                      ▼
+        ┌────────────────────────────────────────────┐
+        │        Remote Storage Layer                │
+        │--------------------------------------------│
+        │ • Columnar Data (Micro-partitions)         │
+        │ • Immutable Storage (S3/Azure/GCS)         │
+        └─────────────┬──────────────────────────────┘
+                      │
+                      ▼
+        ┌────────────────────────────────────────────┐
+        │           Cloud Services Layer             │
+        │--------------------------------------------│
+        │ • Result Aggregation                       │
+        │ • Result Cache Storage (24 hrs)            │
+        └─────────────┬──────────────────────────────┘
+                      │
+                      ▼
+                ┌──────────────────────────────┐
+                │        Client (User)         │
+                │       Results Returned       │
+                └──────────────────────────────┘
