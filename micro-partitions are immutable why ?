@@ -1,0 +1,190 @@
+False.
+
+In Snowflake, micro-partitions are immutable once created.
+
+That means:
+
+Existing micro-partitions are never updated directly
+When data changes (UPDATE, DELETE, MERGE), Snowflake:
+Creates new micro-partitions
+Marks old ones as obsolete
+Maintains metadata for Time Travel and Fail-safe
+
+Example:
+
+UPDATE customers
+SET city = 'Richmond'
+WHERE customer_id = 101;
+
+Snowflake does NOT edit the existing partition.
+Instead:
+
+Reads old partition
+Creates a new version with updated data
+Keeps old partition temporarily for Time Travel
+
+This immutability helps with:
+
+Fast query performance
+Atomic transactions
+Time Travel
+Zero-copy cloning
+Concurrent reads/writes without locking issues
+what hapend when we do clsueting>
+
+When you perform clustering in Snowflake, Snowflake does not modify existing micro-partitions directly.
+
+Instead, Snowflake:
+
+Reads existing micro-partitions
+Reorganizes the data based on clustering keys
+Creates new optimized micro-partitions
+Marks old partitions for cleanup later
+
+So clustering still follows the immutable micro-partition architecture.
+
+Example:
+
+ALTER TABLE sales
+CLUSTER BY (sale_date, region);
+
+Suppose your table originally had random data distribution:
+
+MP1	2025 + 2026 mixed
+MP2	East + West mixed
+MP3	All dates mixed
+
+After clustering:
+
+Snowflake rewrites the table internally into better-organized partitions:
+New MP1	2025 Jan only
+New MP2	2025 Feb only
+New MP3	West region
+New MP4	East region
+
+Benefits:
+
+Better micro-partition pruning
+Less data scanned
+Faster queries
+Lower compute cost
+
+Especially useful for large tables queried often with filters like:
+
+WHERE sale_date = '2026-05-01'
+AND region = 'East'
+
+Important:
+
+Clustering is a background maintenance process
+Automatic Clustering service may continuously recluster tables
+Reclustering consumes credits because Snowflake rewrites partitions
+Old micro-partitions remain temporarily for:
+Time Travel
+Fail-safe
+
+Think of clustering like:
+
+“Repacking books on shelves in sorted order without editing the books themselves.”
+
+Marks old partitions for cleanup later ? how?
+
+When Snowflake creates new micro-partitions during operations like:
+
+UPDATE
+DELETE
+MERGE
+Clustering/Reclustering
+
+…the old micro-partitions are not immediately deleted.
+
+Instead, Snowflake marks them as:
+
+inactive/obsolete
+no longer part of the current table version
+
+But they are still retained temporarily for:
+
+Time Travel
+Fail-safe
+Running queries that started earlier
+
+Flow:
+
+Old Micro-Partition (Active)
+        ↓
+UPDATE / MERGE / CLUSTER
+        ↓
+New Optimized Micro-Partition Created
+        ↓
+Old Partition Marked Obsolete
+        ↓
+Retained for Time Travel
+        ↓
+Moved to Fail-safe
+        ↓
+Physically Purged
+
+Example:
+
+Suppose this partition exists:
+
+MP100
+customer_id 101
+city = NY
+
+You run:
+
+UPDATE customers
+SET city='Richmond'
+WHERE customer_id=101;
+
+Snowflake:
+
+Creates new partition MP200
+MP200 contains updated row
+MP100 becomes obsolete
+
+Current queries now read only MP200.
+
+But MP100 is still stored internally.
+
+Retention timeline:
+
+1. Time Travel Period
+
+Typically:
+
+1 day (Standard Edition)
+Up to 90 days (Enterprise)
+
+During this time:
+
+You can restore old data
+Run historical queries
+
+Example:
+
+SELECT *
+FROM customers
+AT (TIMESTAMP => '2026-05-20 10:00:00');
+
+Snowflake may read old partition MP100.
+
+2. Fail-safe Period
+
+After Time Travel expires:
+
+Snowflake moves old partitions into Fail-safe
+Lasts 7 days
+Only Snowflake support can recover data
+3. Physical Cleanup
+
+After Fail-safe:
+
+Snowflake garbage-collects the old micro-partitions
+Storage is finally released
+
+So “cleanup later” means:
+
+Snowflake delays physical deletion until all recovery windows expire.
