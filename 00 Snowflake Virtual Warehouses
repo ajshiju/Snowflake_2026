@@ -1,0 +1,360 @@
+Snowflake Virtual Warehouses — Summary
+What is a Virtual Warehouse?
+
+A Virtual Warehouse is:
+
+A named abstraction for a massively parallel processing (MPP) compute cluster.
+
+It forms the:
+
+Compute Layer of Snowflake Architecture
+Core Concept
+
+Under the hood:
+
+Multiple compute nodes work together
+in distributed parallel processing.
+
+Example on AWS:
+
+Multiple EC2 instances execute queries together.
+What Does a Virtual Warehouse Do?
+
+Virtual Warehouses handle:
+
+SELECT queries
+INSERT/UPDATE/DELETE/MERGE
+COPY commands
+Data loading
+Transformations
+Joins
+Aggregations
+Important Point
+
+Some commands do NOT require warehouses.
+
+Examples:
+
+SHOW
+DESCRIBE
+Metadata operations
+
+These use:
+
+Cloud Services Layer
+Key Characteristics of Virtual Warehouses
+1. Independent Compute Clusters
+
+Warehouses are isolated.
+
+Example:
+
+One warehouse for ETL
+Another warehouse for BI dashboards
+
+This prevents workload interference.
+
+2. Elastic Scaling
+
+Warehouses can:
+
+Scale UP
+Scale DOWN
+Scale OUT
+Scale IN
+Scaling Up
+
+Increase warehouse size.
+
+Example:
+
+SMALL → MEDIUM → LARGE
+
+Improves:
+
+Single query performance
+Scaling Out
+
+Uses:
+
+Multi-cluster warehouses
+
+Improves:
+
+Concurrency
+3. Fast Start/Stop
+
+Warehouses can:
+
+Start quickly
+Suspend quickly
+Resume quickly
+4. Suspend = No Cost
+
+Important certification point:
+
+Suspended warehouses consume ZERO credits.
+5. Auto Suspend / Auto Resume
+
+Warehouses support:
+
+Automatic suspend
+Automatic resume
+
+Useful for:
+
+Cost optimization
+6. Warehouse Cache
+
+Each warehouse contains:
+
+Local SSD cache
+
+This stores:
+
+Recently accessed micro-partitions
+
+Benefits:
+
+Faster repeated queries
+Important Cache Behavior
+
+Cache belongs to:
+
+Specific warehouse only
+
+Different warehouses:
+
+Do NOT share cache
+Example Workflow
+USE WAREHOUSE analytics_wh;
+
+SELECT * FROM sales;
+
+All subsequent queries use:
+
+analytics_wh
+
+until changed.
+
+Warehouse Sizes
+
+Common sizes:
+
+XSMALL
+SMALL
+MEDIUM
+LARGE
+XLARGE
+
+Each size:
+
+Adds more compute resources
+Multi-Cluster Warehouses
+
+Supports:
+
+Automatic scaling out
+
+Best for:
+
+Many concurrent users
+Real-World Design Example
+Workload	Warehouse
+ETL jobs	ETL_WH
+BI dashboards	BI_WH
+Data Science	DS_WH
+Ad-hoc analysis	ANALYTICS_WH
+Virtual Warehouse Interview Questions
+Beginner Questions
+1. What is a Virtual Warehouse in Snowflake?
+
+Expected answer:
+
+A Virtual Warehouse is a compute cluster used to execute queries and data processing operations in Snowflake.
+
+2. Which Snowflake layer do warehouses belong to?
+
+Expected answer:
+
+Compute Layer
+3. What architecture style do Virtual Warehouses use?
+
+Expected answer:
+
+Massively Parallel Processing (MPP)
+4. What operations require warehouses?
+
+Expected answer:
+
+SELECT
+INSERT
+UPDATE
+DELETE
+MERGE
+COPY
+5. Do SHOW commands require warehouses?
+
+Expected answer:
+
+No
+Scaling Questions
+6. What is scaling UP?
+
+Expected answer:
+
+Increasing warehouse size to improve single-query performance.
+
+7. What is scaling OUT?
+
+Expected answer:
+
+Adding clusters to improve concurrency.
+
+8. Difference between scaling up and scaling out?
+Scaling Up	Scaling Out
+Bigger nodes	More clusters
+Faster single query	Better concurrency
+9. What are multi-cluster warehouses?
+
+Expected answer:
+
+Warehouses that automatically add/remove clusters based on concurrency.
+
+Cost Questions
+10. When does a warehouse consume credits?
+
+Expected answer:
+
+Only while running
+11. Does a suspended warehouse consume credits?
+
+Expected answer:
+
+No
+12. Why is auto suspend important?
+
+Expected answer:
+
+Prevents unnecessary compute cost.
+
+13. What happens during auto resume?
+
+Expected answer:
+
+Warehouse automatically starts when queries arrive.
+
+Cache Questions
+14. What is warehouse cache?
+
+Expected answer:
+
+Local SSD storage containing recently accessed data.
+
+15. Why is warehouse cache important?
+
+Expected answer:
+
+Improves repeated query performance
+16. Is warehouse cache shared across warehouses?
+
+Expected answer:
+
+No
+17. What happens to cache after warehouse resize?
+
+Expected answer:
+
+Cache becomes cold because compute nodes change.
+
+Architecture Questions
+18. Why can Snowflake support many warehouses simultaneously?
+
+Expected answer:
+
+Because compute and storage are separated.
+
+19. Why are warehouses isolated?
+
+Expected answer:
+
+To prevent workload interference.
+
+20. Real-world warehouse separation example?
+
+Expected answer:
+
+ETL warehouse
+BI warehouse
+Data Science warehouse
+Scenario Questions
+21. Dashboard queries are slow due to many users. Best solution?
+
+Expected answer:
+
+Scale OUT using multi-cluster warehouse
+22. One large query is slow. Best solution?
+
+Expected answer:
+
+Scale UP warehouse size
+23. Warehouse costs are high overnight. What should you do?
+
+Expected answer:
+
+Enable auto suspend
+24. Repeated queries suddenly become slower after resizing warehouse. Why?
+
+Expected answer:
+
+Warehouse cache became cold.
+
+25. Why use separate warehouses for ETL and BI?
+
+Expected answer:
+
+Avoid resource contention
+Improve workload isolation
+Tough Interview Questions
+26. Why is Snowflake called elastic?
+
+Expected answer:
+
+Warehouses can dynamically scale up/down and in/out independently.
+
+27. Why does Snowflake not expose underlying EC2 nodes?
+
+Expected answer:
+
+Snowflake abstracts infrastructure complexity from users.
+
+28. Difference between warehouse cache and result cache?
+Warehouse Cache	Result Cache
+Local SSD cache	Query result cache
+Warehouse-specific	Shared at cloud services level
+Stores data blocks	Stores final query results
+29. Can warehouses be resized while running?
+
+Expected answer:
+
+Yes
+30. What is the biggest advantage of warehouse isolation?
+
+Expected answer:
+
+No workload interference
+Rapid Fire Questions
+Question	Answer
+Warehouses are compute layer?	Yes
+Uses MPP architecture?	Yes
+Suspended warehouse billed?	No
+SHOW commands need warehouse?	No
+Cache shared across warehouses?	No
+Scale up improves single query?	Yes
+Scale out improves concurrency?	Yes
+Auto suspend saves cost?	Yes
+Warehouses can resize dynamically?	Yes
+Multi-cluster supports concurrency?	Yes
+Strong Final Interview Answer
+
+A Snowflake Virtual Warehouse is an independent massively parallel processing compute cluster responsible for executing queries and data processing workloads. Warehouses form the compute layer of Snowflake’s architecture and can scale independently without impacting storage. Snowflake warehouses support elastic scaling both vertically and horizontally, enabling optimization for either single-query performance or concurrency. Warehouses can be suspended and resumed instantly, which is important for cost optimization because suspended warehouses consume no credits. Each warehouse also maintains a local SSD cache to improve repeated query performance.
