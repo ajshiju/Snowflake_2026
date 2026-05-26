@@ -1,0 +1,336 @@
+Snowflake Scripting — Interview Questions & Answers
+Beginner Questions
+1. What is Snowflake Scripting?
+
+Expected answer:
+
+Snowflake Scripting is an extension of Snowflake SQL that adds procedural programming capabilities like variables, loops, branching, exception handling, and stored procedure logic.
+
+2. What programming concepts does Snowflake Scripting support?
+
+Expected answer:
+
+Variables
+Loops
+IF/ELSE branching
+CASE statements
+Exception handling
+Cursors
+Result Sets
+Stored Procedures
+3. What are the main sections of a scripting block?
+
+Expected answer:
+
+DECLARE
+BEGIN ... END
+EXCEPTION
+4. What is the purpose of the DECLARE section?
+
+Expected answer:
+
+Used to declare variables, cursors, result sets, and exceptions.
+
+Example:
+
+DECLARE
+    total NUMBER;
+5. What is the purpose of BEGIN and END?
+
+Expected answer:
+
+BEGIN and END contain the procedural logic and SQL statements.
+
+6. What is the EXCEPTION section used for?
+
+Expected answer:
+
+Used to handle runtime errors and exceptions.
+
+7. What is an anonymous block?
+
+Expected answer:
+
+A scripting block executed directly without creating a stored procedure.
+
+Example:
+
+BEGIN
+   RETURN 'Hello';
+END;
+8. Difference between anonymous block and stored procedure?
+Anonymous Block	Stored Procedure
+Temporary execution	Permanent reusable object
+Not stored	Stored in database
+Used for quick testing	Used for reusable business logic
+9. How do you assign values to variables?
+
+Example:
+
+a := 10;
+10. What does LET keyword do?
+
+Expected answer:
+
+LET declares and assigns variables inside the BEGIN block.
+
+Example:
+
+LET b := 20;
+Branching Questions
+11. Does Snowflake Scripting support IF ELSE?
+
+Expected answer:
+
+Yes.
+
+Example:
+
+IF num % 2 = 0 THEN
+   RETURN 'Even';
+ELSE
+   RETURN 'Odd';
+END IF;
+12. Does Snowflake Scripting support CASE statements?
+
+Expected answer:
+
+Yes.
+
+13. Real-world IF ELSE use case?
+
+Expected answer:
+
+Data validation
+Threshold checking
+Conditional ETL logic
+Status handling
+Loop Questions
+14. What looping constructs are available?
+
+Expected answer:
+
+FOR
+WHILE
+REPEAT
+LOOP
+15. Explain FOR loop.
+
+Example:
+
+FOR i IN 1 TO 10 DO
+   total := total + i;
+END FOR;
+16. What does this FOR loop return?
+FOR i IN 1 TO 10 DO
+   total := total + i;
+END FOR;
+
+Expected answer:
+
+55
+
+(sum of 1 through 10)
+
+17. Difference between WHILE and FOR loop?
+FOR	WHILE
+Fixed iterations	Condition-based
+Easier for counters	Better for dynamic conditions
+Cursor Questions
+18. What is a cursor?
+
+Expected answer:
+
+A cursor is an object used to iterate through query result rows one at a time.
+
+19. How do you declare a cursor?
+
+Example:
+
+c1 CURSOR FOR
+SELECT amount FROM transactions;
+20. When is a cursor query executed?
+
+Expected answer:
+
+When the cursor is opened or iterated.
+
+21. Real-world cursor use case?
+
+Expected answer:
+
+Row-by-row processing
+Custom calculations
+Record validations
+Procedural ETL logic
+Result Set Questions
+22. What is a Result Set?
+
+Expected answer:
+
+A Result Set is a SQL data type that stores the results of a query.
+
+23. Difference between Result Set and Cursor?
+Result Set	Cursor
+Stores query results	Iterates rows
+Executes immediately when assigned	Executes when called
+Can return table output	Used for row processing
+24. How can Result Sets be accessed?
+
+Expected answer:
+
+TABLE function
+Cursor iteration
+25. When is a Result Set query executed?
+
+Expected answer:
+
+Immediately when assigned.
+
+Transaction Questions
+26. What is the purpose of BEGIN TRANSACTION?
+
+Expected answer:
+
+Starts an explicit transaction block.
+
+27. Why does Snowflake recommend BEGIN TRANSACTION instead of BEGIN?
+
+Expected answer:
+
+To avoid confusion between scripting blocks and transaction blocks.
+
+Exception Handling Questions
+28. Why is exception handling important?
+
+Expected answer:
+
+To gracefully handle runtime errors and prevent failures.
+
+29. Example use cases for EXCEPTION section?
+
+Expected answer:
+
+Division by zero
+Invalid data
+Missing tables
+ETL failures
+Logging errors
+Stored Procedure Questions
+30. Why use stored procedures?
+
+Expected answer:
+
+Reusable business logic
+Shared processing
+Automation
+Complex ETL operations
+31. What language is Snowflake Scripting based on?
+
+Expected answer:
+
+SQL with procedural extensions.
+
+32. Can Snowflake Scripting run directly in worksheets?
+
+Expected answer:
+
+Yes.
+
+33. Why are dollar signs needed in SnowSQL or Classic Console?
+
+Expected answer:
+
+To wrap scripting blocks properly for parsing.
+
+Example:
+
+$$
+BEGIN
+   RETURN 1;
+END;
+$$
+Scenario-Based Questions
+34. You need reusable ETL logic shared across teams. What would you use?
+
+Expected answer:
+
+Stored Procedures using Snowflake Scripting.
+
+35. You need row-by-row validation. Which feature helps?
+
+Expected answer:
+
+Cursor.
+
+36. You need conditional branching based on data quality. What construct helps?
+
+Expected answer:
+
+IF ELSE or CASE statements.
+
+37. You need to process all rows from a query result one by one. What would you use?
+
+Expected answer:
+
+Cursor loop.
+
+38. You need temporary procedural logic for testing only. Best option?
+
+Expected answer:
+
+Anonymous block.
+
+Advanced Questions
+39. What is variable scope in Snowflake Scripting?
+
+Expected answer:
+
+Variables exist only within the scripting block where they are declared.
+
+40. Can SQL statements be executed inside scripting blocks?
+
+Expected answer:
+
+Yes.
+
+Example:
+
+CREATE TABLE test(id INT);
+41. Difference between DECLARE and LET?
+DECLARE	LET
+Declares variables before BEGIN	Declares inside BEGIN
+Explicit type definition	Type can be inferred
+42. Why use procedural logic instead of plain SQL?
+
+Expected answer:
+
+Complex workflows
+Conditional processing
+Loops
+Exception handling
+Reusable automation
+43. Real-world ETL example using scripting?
+
+Expected answer:
+
+Load data
+Validate records
+Handle bad rows
+Log errors
+Commit transaction
+Tough Rapid-Fire Questions
+Question	Answer
+Supports loops?	Yes
+Supports IF ELSE?	Yes
+Supports stored procedures?	Yes
+DECLARE mandatory?	No
+EXCEPTION mandatory?	No
+Result Set executes immediately?	Yes
+Cursor executes immediately?	No
+Anonymous block permanent?	No
+Stored procedure reusable?	Yes
+Variables outside block accessible?	No
+Strong Final Interview Answer
+
+Snowflake Scripting extends SQL with procedural programming capabilities such as variables, loops, branching, cursors, result sets, and exception handling. It allows developers to build reusable stored procedures and complex ETL workflows directly inside Snowflake. Anonymous blocks are useful for temporary execution, while stored procedures provide reusable logic. Snowflake Scripting supports control-flow constructs like IF ELSE and FOR loops, making it suitable for automation, validation, and procedural data processing tasks.
