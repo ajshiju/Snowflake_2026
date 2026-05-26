@@ -1,0 +1,349 @@
+Streamlit + Snowflake — Summary
+What is Streamlit?
+
+Streamlit is an:
+
+Open-source Python framework
+
+used to quickly build:
+
+Interactive web applications
+Dashboards
+Data analysis apps
+ML apps
+AI apps
+
+without needing:
+
+HTML
+CSS
+JavaScript
+Routing frameworks
+Key Streamlit Features
+Simple Execution
+
+Run app using:
+
+streamlit run app.py
+
+Default URL:
+
+localhost:8501
+Widgets & Elements
+
+Streamlit provides ready-made UI components.
+
+Examples:
+
+Widget	Purpose
+title()	Display title
+markdown()	Display markdown
+write()	Print text/data
+button()	Button input
+slider()	Numeric slider
+radio()	Radio button
+dataframe()	Display tables
+line_chart()	Charts
+bar_chart()	Bar charts
+Example Streamlit Code
+import streamlit as st
+
+st.title("My First App")
+
+age = st.slider("Select Age", 1, 100)
+
+st.write("Your age is:", age)
+Streamlit + Pandas Example
+import pandas as pd
+import streamlit as st
+
+df = pd.DataFrame({
+    "Name": ["A", "B"],
+    "Score": [90, 95]
+})
+
+st.dataframe(df)
+Streamlit + Charts
+st.line_chart(df)
+
+Creates interactive charts easily.
+
+Streamlit on Snowflake
+
+Snowflake supports:
+
+Native Streamlit apps inside Snowflake
+
+Meaning:
+
+Application code stays inside Snowflake
+Data stays inside Snowflake
+Compute stays inside Snowflake
+
+No external deployment required.
+
+Important Architecture
+Streamlit Apps are Schema-Level Objects
+
+Like:
+
+Tables
+Views
+Procedures
+
+This allows:
+
+Role-based access control
+Secure sharing
+Governance
+Streamlit App Components in Snowflake
+1. environment.yml
+
+Used to define:
+
+Python version
+Dependencies/packages
+
+Example packages:
+
+streamlit
+snowpark-python
+pandas
+numpy
+matplotlib
+2. Python File
+
+Contains Streamlit application code.
+
+Snowpark Integration
+
+Inside Snowflake Streamlit:
+
+Python code uses Snowpark
+
+to interact with Snowflake tables.
+
+Example:
+
+df = session.table("CUSTOMERS").to_pandas()
+
+st.dataframe(df)
+Virtual Warehouse Usage
+
+Important interview point:
+
+One virtual warehouse executes queries
+for one Streamlit app.
+
+Warehouse handles:
+
+Queries
+Compute
+Charts
+Data processing
+Sharing Streamlit Apps
+
+Apps can be shared using:
+
+Roles
+RBAC
+Share button
+Owner’s Rights Concept
+
+Important certification point:
+
+Streamlit apps run with owner's rights.
+
+Meaning:
+
+Viewer does NOT need direct access
+to underlying tables.
+
+The app creator’s permissions are used.
+
+Real-World Use Cases
+Dashboards
+Sales analytics
+Customer analytics
+Executive dashboards
+AI & ML Apps
+LLM chat apps
+NLP applications
+Prediction dashboards
+Fraud detection
+Streamlit vs Flask/Django
+Streamlit	Flask/Django
+Easy setup	More setup
+No frontend coding needed	Requires frontend work
+Data apps focused	General web apps
+Built for analytics	General purpose
+Streamlit Interview Questions
+Beginner Questions
+1. What is Streamlit?
+
+Expected answer:
+
+Streamlit is an open-source Python framework for quickly building interactive web applications and data dashboards.
+
+2. Why is Streamlit popular in Data Engineering/Data Science?
+
+Expected answer:
+
+Fast development
+Easy visualization
+Minimal frontend coding
+Easy integration with pandas and ML libraries
+3. How do you run a Streamlit app?
+
+Expected answer:
+
+streamlit run app.py
+4. Default Streamlit port?
+
+Expected answer:
+
+8501
+5. Does Streamlit require JavaScript knowledge?
+
+Expected answer:
+
+No
+Widget Questions
+6. Name common Streamlit widgets.
+
+Expected answer:
+
+button
+slider
+radio
+text_input
+selectbox
+checkbox
+7. What does st.write() do?
+
+Expected answer:
+
+Displays text, variables, dataframes, or charts.
+
+8. How do you display a Pandas DataFrame?
+
+Expected answer:
+
+st.dataframe(df)
+9. How do you create charts in Streamlit?
+
+Expected answer:
+
+st.line_chart(df)
+st.bar_chart(df)
+Snowflake Streamlit Questions
+10. What is Streamlit in Snowflake?
+
+Expected answer:
+
+Native Streamlit applications hosted directly inside Snowflake.
+
+11. Why is Streamlit on Snowflake powerful?
+
+Expected answer:
+
+No data movement
+Built-in governance
+Integrated compute
+Easy deployment
+12. What is environment.yml used for?
+
+Expected answer:
+
+Defines Python version and required packages.
+
+13. Which package is commonly used with Streamlit in Snowflake?
+
+Expected answer:
+
+Snowpark Python
+14. What is Snowpark used for?
+
+Expected answer:
+
+To interact with Snowflake data using Python.
+
+15. Where are Streamlit apps stored in Snowflake?
+
+Expected answer:
+
+Schema-level objects
+Security Questions
+16. What does “owner’s rights” mean?
+
+Expected answer:
+
+The app executes using creator permissions, not viewer permissions.
+
+17. Why is owner’s rights important?
+
+Expected answer:
+
+Users can view app results
+without direct table access.
+Warehouse Questions
+18. What executes Streamlit app queries?
+
+Expected answer:
+
+Virtual Warehouse
+19. Does Streamlit require external servers in Snowflake?
+
+Expected answer:
+
+No
+Scenario-Based Questions
+20. Your business wants dashboards directly inside Snowflake. Best solution?
+
+Expected answer:
+
+Streamlit on Snowflake
+21. You need a quick analytics UI without frontend coding.
+
+Expected answer:
+
+Streamlit
+22. You need interactive ML dashboards using Snowflake data.
+
+Expected answer:
+
+Streamlit + Snowpark
+Tough Interview Questions
+23. Difference between Streamlit and Tableau?
+Streamlit	Tableau
+Python-based	Drag-and-drop BI
+Custom apps	Visualization-focused
+Developer friendly	Business user friendly
+24. Difference between Streamlit and Flask?
+Streamlit	Flask
+Analytics focused	General web framework
+Minimal setup	More backend setup
+Built-in widgets	Manual UI creation
+25. Why use Streamlit inside Snowflake instead of externally?
+
+Expected answer:
+
+Better governance
+No data movement
+Integrated security
+Simpler deployment
+Rapid Fire Questions
+Question	Answer
+Streamlit open source?	Yes
+Default port?	8501
+Requires JavaScript?	No
+Streamlit apps in Snowflake are schema objects?	Yes
+Uses Snowpark?	Yes
+Streamlit apps run with owner’s rights?	Yes
+Virtual warehouse required?	Yes
+environment.yml stores dependencies?	Yes
+Can display Pandas DataFrames?	Yes
+Can create charts?	Yes
+Strong Final Interview Answer
+
+Streamlit is an open-source Python framework used to rapidly build interactive web applications and dashboards, especially for analytics, AI, and machine learning workloads. Streamlit simplifies frontend development by providing built-in widgets and visualization components without requiring HTML, CSS, or JavaScript. In Snowflake, Streamlit apps run natively inside the platform using Snowpark for data access and virtual warehouses for compute. Streamlit apps are schema-level objects managed by Snowflake security and access control, and they execute using owner’s rights, allowing users to access app outputs without direct table permissions.
