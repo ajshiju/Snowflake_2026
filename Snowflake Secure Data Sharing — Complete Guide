@@ -1,0 +1,576 @@
+Snowflake Secure Data Sharing — Complete Guide
+Detailed Summary
+What is Secure Data Sharing?
+Secure Data Sharing is the ability for one Snowflake account to grant read-only access to selected database objects (tables, views, etc.) to another Snowflake account — without transferring any data between accounts.
+
+Key Roles
+Role	Description
+Data Provider	The account that owns and shares the data (e.g. Account A)
+Data Consumer	The account that receives and reads the shared data (e.g. Account B)
+How It Works Under the Hood
+Enabled by Snowflake's Global Services Layer
+The provider exposes their own storage via the services layer to another account's queries
+No data is physically moved or copied — the consumer reads directly from the provider's storage
+Consumer pays only for compute costs to query the shared data — no storage costs
+What Can Be Shared?
+Object	Shareable?	Notes
+Tables	YES	
+External Tables	YES	
+Secure Views	YES	Recommended over sharing tables directly
+Secure Materialized Views	YES	
+Secure UDFs	YES	
+Regular Views	NO	Must be designated as SECURE first
+Regular UDFs	NO	Must be designated as SECURE first
+Snowflake strongly recommends sharing Secure Views over Tables — they hide the view definition and protect against inadvertently exposing source table data, which is critical when sharing with external organizations.
+
+The Share Object
+A Share is an account-level object created by the data provider. It has two configurations:
+
+Grants — which database objects to share (what to share)
+Accounts — which consumer accounts can access the share (who to share with)
+Provider Setup — Step by Step
+Step 1 — Create the Share object
+
+Step 2 — Grant access to database objects in this order:
+
+Grant access to the Database (only ONE database per share)
+Grant access to one or more Schemas
+Grant access to specific Database Objects (tables, views, etc.)
+Step 3 — Add consumer accounts to the share (virtually unlimited accounts)
+
+Consumer Setup — Step by Step
+Step 1 — List available shares using SHOW SHARES
+
+Step 2 — Create a database from the share (only ONE database per share)
+
+Step 3 — Query the shared objects as if they were native tables in their own account, including joining with their own data
+
+Important Provider Behaviors
+Behavior	Detail
+Objects added to share	Immediately available to ALL consumers
+New objects created in shared DB	NOT automatically added to share — must be explicitly granted
+Future grants	Cannot be used in shares
+One database per share	Hard limit — only one database per share
+Number of shares	No hard limit on shares a provider can create
+Number of consumer accounts	No hard limit on accounts added to a share
+Role required	ACCOUNTADMIN by default (can be delegated via CREATE SHARE privilege)
+Revoking access	Access can be revoked at ANY time — instantly removes consumer access
+Important Consumer Behaviors
+Behavior	Detail
+Databases per share	Only ONE database can be created per share
+Time Travel	NOT available on shared tables
+Cloning	Cannot clone shared tables
+Creating objects	Cannot create objects inside the shared database
+Resharing	Cannot reshare shared database objects
+Role required	ACCOUNTADMIN by default (can be delegated via IMPORT SHARE privilege)
+Cross-Region Sharing Limitation
+Secure Data Sharing only works between accounts in the same region and cloud platform
+To share across regions, the provider must:
+Replicate the database into an account within the same region as the consumer
+Create a share from the replicated database
+Reader Accounts (Managed Accounts)
+For scenarios where the consumer does not have a Snowflake account:
+
+Aspect	Detail
+What it is	A limited Snowflake account provisioned by the provider for non-Snowflake users
+Purpose	Query and view shared database objects only
+Access	URL, username, and password provided
+Limitations	Cannot insert data, cannot copy data in, can only read from the provider's share
+Share restriction	Can only access shares from the provider account that created it
+Billing	All compute costs billed back to the provider account
+Limit	Soft limit of 20 reader accounts per provider (can be increased via Snowflake Support)
+Agreement	Consumer does NOT need to enter a Snowflake agreement
+Snowflake Data Marketplace
+A portal within the Snowflake UI that enables data monetization
+Providers can set up pay-for-access models for their shared data
+Built on top of the Secure Data Sharing infrastructure
+Snowflake Editions Supporting Secure Data Sharing
+Edition	Supported?
+Standard	YES
+Enterprise	YES
+Business Critical	YES
+Virtual Private Snowflake (VPS)	NO
+Interview Questions & Answers
+Conceptual Questions
+Q1. What is Secure Data Sharing in Snowflake and how does it work?
+
+Secure Data Sharing allows one Snowflake account (the data provider) to grant read-only access to selected database objects to another Snowflake account (the data consumer) without physically transferring any data. It works through Snowflake's Global Services Layer, which exposes the provider's storage to the consumer's queries. The consumer reads data directly from the provider's storage — no data movement occurs. As a result, the consumer only pays for compute resources to run queries, not for any storage.
+
+Q2. What is the difference between a Data Provider and a Data Consumer?
+
+Data Provider — the account that owns the data and creates the Share object. They control which database objects are shared and which accounts can access them. They can revoke access at any time.
+Data Consumer — the account that receives access to the shared data. They create a database from the share and can query the shared objects as if they were native to their own account. However, they cannot insert, update, clone, or reshare the shared data.
+Q3. Why does Snowflake recommend sharing Secure Views over Tables?
+
+When sharing directly with external organizations, exposing raw tables can risk revealing more data than intended. Secure Views:
+
+Hide the view definition — the consumer cannot see how the view was built or what the underlying table structure looks like
+Protect against inadvertent data exposure — the view can filter or mask sensitive columns before sharing
+Add an extra security layer — since you are potentially sharing with a completely different organization, stricter data protection is advisable
+Regular views cannot be shared — they must be explicitly designated as SECURE first.
+
+Q4. What is a Share object and what does it consist of?
+
+A Share is an account-level object created by the data provider. When first created it is an empty container with no configuration. It consists of two configurations:
+
+Grants — permissions applied to the share defining which database objects consumers can read (decides WHAT to share)
+Accounts — the list of consumer accounts that can see and access the share (decides WHO to share with)
+Only the ACCOUNTADMIN role can create shares by default, though this can be delegated via the CREATE SHARE privilege.
+
+Technical Questions
+Q5. What database objects can be included in a Snowflake Share?
+
+The following objects can be shared:
+
+Tables
+External Tables
+Secure Views (must be designated SECURE)
+Secure Materialized Views (must be designated SECURE)
+Secure UDFs (must be designated SECURE)
+Regular views and UDFs cannot be shared unless they are first designated as SECURE. This designation hides the definition and adds an extra layer of data protection.
+
+Q6. Walk through the complete steps to set up data sharing from both provider and consumer sides.
+
+Provider Side:
+
+Create a Share object (requires ACCOUNTADMIN or CREATE SHARE privilege)
+Grant USAGE on the database to the share
+Grant USAGE on the relevant schema(s) to the share
+Grant SELECT on the specific tables/views to the share
+Add the consumer account(s) to the share
+Consumer Side:
+
+Use SHOW SHARES to list available shares
+Use DESCRIBE SHARE to see what objects are included
+Create a database from the share (requires ACCOUNTADMIN or IMPORT SHARE privilege)
+Query the shared objects as normal
+Q7. What are the key limitations of Secure Data Sharing?
+
+Provider limitations:
+
+Only ONE database can be added per share
+Future grants cannot be used in shares — new objects must be explicitly granted
+Cross-region sharing is not natively supported
+Consumer limitations:
+
+Only ONE database can be created from a share
+Time Travel is NOT available on shared tables
+Cannot clone shared tables
+Cannot create objects inside the shared database
+Cannot reshare shared objects with other accounts
+Platform limitation:
+
+Not supported on Virtual Private Snowflake (VPS)
+Cross-region sharing requires database replication first
+Q8. What happens when a data provider revokes access to a shared object?
+
+Access is instantly removed. If a provider:
+
+Removes a grant from a share — the consumer immediately loses access to that object
+Drops a shared object or data — the consumer's access to that object is instantly revoked
+There is no delay or grace period. This gives providers complete, real-time control over what consumers can see.
+
+Q9. A new table is created inside a shared database. Is it automatically visible to consumers?
+
+No. Any new object created within a shared database is NOT automatically added to the share. The provider must explicitly add a new grant to the share for that object to make it accessible to consumers. Future grants cannot be used in shares — every object must be individually and explicitly granted.
+
+Q10. What is a Reader Account and when would you use it?
+
+A Reader Account (also called a Managed Account) is a limited Snowflake account provisioned by a data provider for organizations that do not have their own Snowflake account. It is used when:
+
+A provider wants to share data with a non-Snowflake customer or partner
+The consumer does not want to enter a Snowflake agreement
+Key characteristics:
+
+Consumer is given a URL, username, and password
+Can only query shared objects from the provider account that created it
+Cannot insert data or create their own objects
+All compute costs are billed back to the provider
+Soft limit of 20 reader accounts per provider (can be raised via Snowflake Support)
+Q11. How would you share data with a consumer in a different cloud region?
+
+Direct cross-region sharing is not natively supported in Snowflake. The workaround involves two steps:
+
+Replicate the database you want to share into a Snowflake account that is in the same region and cloud platform as the consumer
+Create a Share from that replicated database and add the consumer account
+This combines two features — Replication (for cross-region data movement) and Secure Data Sharing (for the actual sharing mechanism).
+
+Q12. Who pays for the compute costs when a consumer queries shared data?
+
+It depends on the type of consumer:
+
+Standard consumer account — the consumer pays for compute resources used to query shared data. They do not pay any storage costs since no data is copied to their account.
+Reader account — the provider pays for ALL compute costs incurred by the reader account, since the provider created and is responsible for that account.
+Scenario-Based Questions
+Q13. A financial data company wants to sell access to their market data to clients. Some clients have Snowflake, some don't. How would you set this up?
+
+For clients with Snowflake accounts:
+
+Create a Share with grants on the relevant secure views
+Add client Snowflake accounts to the share
+Use the Data Marketplace to manage and monetize access
+For clients without Snowflake accounts:
+
+Provision a Reader Account for each client (up to 20, soft limit)
+Provide them with the account URL, username, and password
+All compute costs for reader account queries are billed back to the provider
+Contact Snowflake Support if more than 20 reader accounts are needed
+Q14. A consumer says they want to modify the shared data and save it in their account. Is this possible?
+
+Not directly. Consumers have read-only access to shared data — they cannot insert, update, or delete shared data, nor can they clone shared tables or create objects inside the shared database.
+
+However, they can achieve a similar outcome by:
+
+Running a CREATE TABLE AS SELECT to copy the shared data into a native table in their own database (outside the shared database)
+They would then own and have full control over that copied table
+This does incur storage costs in the consumer account for the copied data
+Q15. What is the role of the Global Services Layer in Secure Data Sharing?
+
+The Global Services Layer is what makes zero-copy data sharing possible. Rather than physically transferring data, the provider exposes their storage layer to the consumer through the Global Services Layer. When the consumer runs a query against shared objects, the query is routed through the services layer to read directly from the provider's underlying storage. This means:
+
+No data duplication occurs
+Consumers see the most up-to-date data instantly
+No storage costs for the consumer
+Changes made by the provider (including revoking access) take effect immediately
+Quick Reference Cheat Sheet
+Concept	Key Detail
+Data Provider	Creates and manages the Share object
+Data Consumer	Creates a database from the Share
+Share object	Account-level container for grants and accounts
+Data transfer	NONE — zero-copy, uses Global Services Layer
+Consumer storage cost	NONE — only pays compute
+Objects shareable	Tables, external tables, secure views, secure materialized views, secure UDFs
+Views must be	SECURE before they can be shared
+DBs per share	ONE database only
+DBs per consumer	ONE database created per share
+New objects auto-shared	NO — must be explicitly granted
+Future grants in shares	NOT supported
+Time Travel on shared tables	NOT available
+Clone shared tables	NOT allowed
+Resharing	NOT allowed by consumers
+Cross-region sharing	Requires replication first
+VPS support	NOT supported
+Reader account limit	20 (soft limit — can be raised)
+Reader account billing	All compute billed to PROVIDER
+Role to create share	ACCOUNTADMIN (delegable)
+Role to import share	ACCOUNTADMIN (delegable)
+Revoking access	Instant — no grace period
+synatx for share and grant
+
+12:08 PM
+Snowflake Secure Data Sharing — Complete Syntax Guide
+PROVIDER SIDE — Full Syntax
+Step 1 — Create a Share
+sql
+-- Basic share creation
+CREATE SHARE my_share;
+
+-- Create share with comment
+CREATE SHARE my_share
+COMMENT = 'Share for client ABC';
+
+-- View all shares created by provider
+SHOW SHARES;
+
+-- Describe a specific share
+DESCRIBE SHARE my_share;
+Step 2 — Grant Privileges to the Share
+sql
+-- IMPORTANT: Must follow this exact order:
+-- 1. Database → 2. Schema → 3. Object
+
+-- Step 2a: Grant access to the DATABASE
+GRANT USAGE ON DATABASE my_database
+TO SHARE my_share;
+
+-- Step 2b: Grant access to the SCHEMA
+GRANT USAGE ON SCHEMA my_database.my_schema
+TO SHARE my_share;
+
+-- Step 2c: Grant access to specific TABLES
+GRANT SELECT ON TABLE my_database.my_schema.my_table
+TO SHARE my_share;
+
+-- Grant access to MULTIPLE tables at once
+GRANT SELECT ON TABLE my_database.my_schema.table_1,
+               my_database.my_schema.table_2,
+               my_database.my_schema.table_3
+TO SHARE my_share;
+
+-- Grant access to ALL tables in a schema
+GRANT SELECT ON ALL TABLES
+IN SCHEMA my_database.my_schema
+TO SHARE my_share;
+Grant Secure Views & Other Objects
+sql
+-- Grant access to a SECURE VIEW
+GRANT SELECT ON VIEW my_database.my_schema.my_secure_view
+TO SHARE my_share;
+
+-- Grant access to a SECURE MATERIALIZED VIEW
+GRANT SELECT ON MATERIALIZED VIEW my_database.my_schema.my_secure_mv
+TO SHARE my_share;
+
+-- Grant access to a SECURE UDF
+GRANT USAGE ON FUNCTION my_database.my_schema.my_secure_udf(VARCHAR)
+TO SHARE my_share;
+
+-- Grant access to an EXTERNAL TABLE
+GRANT SELECT ON EXTERNAL TABLE my_database.my_schema.my_ext_table
+TO SHARE my_share;
+Step 3 — Add Consumer Accounts to the Share
+sql
+-- Add a single consumer account
+ALTER SHARE my_share
+ADD ACCOUNTS = consumer_org.consumer_account;
+
+-- Add multiple consumer accounts at once
+ALTER SHARE my_share
+ADD ACCOUNTS = consumer_org.account_1,
+               consumer_org.account_2,
+               consumer_org.account_3;
+
+-- Remove a specific consumer account
+ALTER SHARE my_share
+REMOVE ACCOUNTS = consumer_org.consumer_account;
+
+-- Remove multiple consumer accounts
+ALTER SHARE my_share
+REMOVE ACCOUNTS = consumer_org.account_1,
+                  consumer_org.account_2;
+Revoking Grants from a Share
+sql
+-- Revoke access to a specific TABLE
+REVOKE SELECT ON TABLE my_database.my_schema.my_table
+FROM SHARE my_share;
+
+-- Revoke access to a SCHEMA
+REVOKE USAGE ON SCHEMA my_database.my_schema
+FROM SHARE my_share;
+
+-- Revoke access to the DATABASE
+REVOKE USAGE ON DATABASE my_database
+FROM SHARE my_share;
+
+-- Revoke access to a SECURE VIEW
+REVOKE SELECT ON VIEW my_database.my_schema.my_secure_view
+FROM SHARE my_share;
+Managing & Dropping Shares
+sql
+-- View all objects granted to a share
+SHOW GRANTS TO SHARE my_share;
+
+-- View all accounts added to a share
+SHOW GRANTS OF SHARE my_share;
+
+-- Drop a share entirely
+DROP SHARE my_share;
+
+-- Alter share comment
+ALTER SHARE my_share
+SET COMMENT = 'Updated share description';
+Creating Secure Objects to Share
+sql
+-- Create a SECURE VIEW (recommended over sharing raw tables)
+CREATE OR REPLACE SECURE VIEW my_database.my_schema.my_secure_view AS
+SELECT
+    customer_id,
+    customer_name,
+    region
+    -- Sensitive columns like SSN, salary are excluded
+FROM my_database.my_schema.customers
+WHERE region = 'EMEA';
+
+-- Create a SECURE MATERIALIZED VIEW
+CREATE OR REPLACE SECURE MATERIALIZED VIEW my_database.my_schema.my_secure_mv AS
+SELECT
+    product_id,
+    SUM(sales_amount) AS total_sales
+FROM my_database.my_schema.sales
+GROUP BY product_id;
+
+-- Create a SECURE UDF
+CREATE OR REPLACE SECURE FUNCTION my_database.my_schema.mask_email(email VARCHAR)
+RETURNS VARCHAR
+LANGUAGE JAVASCRIPT AS
+$$
+  return EMAIL.replace(/^(.{2}).*(@.*)$/, '$1***$2');
+$$;
+CONSUMER SIDE — Full Syntax
+Step 1 — Discover Available Shares
+sql
+-- List all shares available to this account
+SHOW SHARES;
+
+-- Describe what objects are in a share
+DESCRIBE SHARE provider_org.provider_account.my_share;
+
+-- Show all incoming shares only
+SHOW SHARES LIKE 'my_share%';
+Step 2 — Create Database from Share
+sql
+-- Create a database from the share
+CREATE DATABASE my_shared_db
+FROM SHARE provider_org.provider_account.my_share;
+
+-- Only ONE database can be created per share
+-- Running this again will produce an error
+
+-- View the newly created shared database
+SHOW DATABASES;
+
+-- See all objects available in the shared database
+SHOW TABLES IN DATABASE my_shared_db;
+SHOW VIEWS IN DATABASE my_shared_db;
+Step 3 — Query Shared Data
+sql
+-- Query a shared table
+SELECT * FROM my_shared_db.my_schema.my_table;
+
+-- Filter shared data
+SELECT *
+FROM my_shared_db.my_schema.my_table
+WHERE region = 'EMEA'
+LIMIT 100;
+
+-- JOIN shared data with your own native tables
+SELECT
+    s.customer_id,
+    s.customer_name,
+    o.order_id,
+    o.order_amount
+FROM my_shared_db.my_schema.customers s
+JOIN my_own_db.my_schema.orders o
+    ON s.customer_id = o.customer_id;
+
+-- Aggregate shared data
+SELECT
+    region,
+    COUNT(*) AS total_customers,
+    SUM(revenue) AS total_revenue
+FROM my_shared_db.my_schema.customers
+GROUP BY region
+ORDER BY total_revenue DESC;
+READER ACCOUNTS — Full Syntax
+sql
+-- Create a reader account (run by PROVIDER)
+CREATE MANAGED ACCOUNT reader_account_1
+ADMIN_NAME = 'admin_user'
+ADMIN_PASSWORD = 'SecurePassword123!'
+TYPE = READER
+COMMENT = 'Reader account for client XYZ';
+
+-- View all reader accounts created
+SHOW MANAGED ACCOUNTS;
+
+-- Grant share access to reader account
+ALTER SHARE my_share
+ADD ACCOUNTS = <reader_account_locator>;
+
+-- Drop a reader account
+DROP MANAGED ACCOUNT reader_account_1;
+DELEGATION OF PRIVILEGES
+sql
+-- Delegate CREATE SHARE privilege to another role
+-- (so roles other than ACCOUNTADMIN can create shares)
+GRANT CREATE SHARE ON ACCOUNT
+TO ROLE data_share_manager;
+
+-- Delegate IMPORT SHARE privilege to another role
+-- (so roles other than ACCOUNTADMIN can import shares)
+GRANT IMPORT SHARE ON ACCOUNT
+TO ROLE data_consumer_role;
+MONITORING & AUDITING SHARES
+sql
+-- Show all shares (both incoming and outgoing)
+SHOW SHARES;
+
+-- Show all grants TO a specific share
+SHOW GRANTS TO SHARE my_share;
+
+-- Show all accounts that have access to a share
+SHOW GRANTS OF SHARE my_share;
+
+-- Monitor share usage via Account Usage
+SELECT *
+FROM SNOWFLAKE.ACCOUNT_USAGE.DATA_SHARING_USAGE_HISTORY
+WHERE SHARE_NAME = 'MY_SHARE'
+ORDER BY USAGE_DATE DESC;
+COMPLETE END-TO-END EXAMPLE
+sql
+-- ============================================
+-- PROVIDER ACCOUNT
+-- ============================================
+
+-- 1. Create secure view to share safely
+CREATE OR REPLACE SECURE VIEW sales_db.public.regional_sales_view AS
+SELECT
+    region,
+    product_category,
+    SUM(sales_amount) AS total_sales,
+    COUNT(order_id)   AS total_orders
+FROM sales_db.public.orders
+GROUP BY region, product_category;
+
+-- 2. Create the share
+CREATE SHARE client_share;
+
+-- 3. Grant object hierarchy to share
+GRANT USAGE ON DATABASE sales_db               TO SHARE client_share;
+GRANT USAGE ON SCHEMA   sales_db.public        TO SHARE client_share;
+GRANT SELECT ON VIEW    sales_db.public.regional_sales_view
+                                               TO SHARE client_share;
+
+-- 4. Add consumer accounts
+ALTER SHARE client_share
+ADD ACCOUNTS = consumer_org.client_account_1,
+               consumer_org.client_account_2;
+
+-- 5. Verify setup
+SHOW GRANTS TO SHARE client_share;
+SHOW GRANTS OF SHARE client_share;
+
+
+-- ============================================
+-- CONSUMER ACCOUNT
+-- ============================================
+
+-- 1. Discover available shares
+SHOW SHARES;
+
+-- 2. Inspect share contents
+DESCRIBE SHARE provider_org.provider_account.client_share;
+
+-- 3. Create database from share
+CREATE DATABASE client_shared_db
+FROM SHARE provider_org.provider_account.client_share;
+
+-- 4. Query shared data
+SELECT * FROM client_shared_db.public.regional_sales_view;
+
+-- 5. Join with own data
+SELECT
+    s.region,
+    s.total_sales,
+    t.sales_target,
+    (s.total_sales - t.sales_target) AS variance
+FROM client_shared_db.public.regional_sales_view s
+JOIN my_own_db.public.sales_targets t
+    ON s.region = t.region;
+Quick Syntax Reference Card
+Action	Command
+Create share	CREATE SHARE my_share
+Grant database	GRANT USAGE ON DATABASE db TO SHARE share
+Grant schema	GRANT USAGE ON SCHEMA db.schema TO SHARE share
+Grant table	GRANT SELECT ON TABLE db.schema.table TO SHARE share
+Grant secure view	GRANT SELECT ON VIEW db.schema.view TO SHARE share
+Add consumer	ALTER SHARE share ADD ACCOUNTS = org.account
+Remove consumer	ALTER SHARE share REMOVE ACCOUNTS = org.account
+Revoke object	REVOKE SELECT ON TABLE db.schema.table FROM SHARE share
+Drop share	DROP SHARE my_share
+Show shares	SHOW SHARES
+Describe share	DESCRIBE SHARE share_name
+Show grants to share	SHOW GRANTS TO SHARE share_name
+Show share accounts	SHOW GRANTS OF SHARE share_name
+Create DB from share	CREATE DATABASE db FROM SHARE org.account.share
+Create reader account	CREATE MANAGED ACCOUNT name ADMIN_NAME='' ADMIN_PASSWORD='' TYPE=READER
