@@ -1,0 +1,142 @@
+
+Snowflake Micro-Partitions — Summary
+How Data is Physically Stored
+The Loading Process
+
+Executing COPY INTO <table> triggers a reorganization process that transforms input files into Snowflake's optimized format
+Simultaneously, input rows are transparently partitioned into discrete files called micro-partitions
+No user-defined partitioning key needed — Snowflake partitions automatically based on the natural ordering of input data as it arrives
+
+Micro-Partition Characteristics
+
+Size: 50–500 MB of uncompressed data
+A large table can have millions of micro-partitions
+Each file is immutable — write once, read many
+DML operations (e.g., UPDATE) create a brand new partition rather than modifying existing ones
+
+
+Columnar Storage Format
+Each micro-partition stores data in a columnar format — column values grouped contiguously on disk, not rows. This provides two key benefits:
+BenefitExplanationBetter CompressionEach column is a single data type, so the optimal compression scheme can be appliedColumn PruningOnly columns needed by the query are retrieved — irrelevant columns are skipped
+
+Immutability & Versioning
+
+Because partitions are immutable, every write creates a new version
+This versioning underpins data protection features like Time Travel, which restores previous table states by referencing older micro-partitions
+The Metadata Service (in the Global Services Layer) tracks all micro-partition versioning
+
+
+Metadata Stored Per Micro-Partition
+The metadata service maintains:
+
+MIN & MAX values per column → enables partition pruning and zero-compute aggregate queries
+Number of distinct values per column
+Total micro-partition count per table
+Table-level: row count, structure, size
+
+
+Key insight: MIN() and MAX() queries on a column don't require a running virtual warehouse — results are pulled directly from the metadata store.
+
+
+Micro-Partition Pruning
+The most important performance optimization in Snowflake's storage layer:
+
+A query with a predicate/filter on a column is submitted
+Snowflake checks the metadata store for MIN/MAX values per partition
+Any micro-partition whose range cannot contain the desired values is discarded from the query plan
+Only relevant micro-partitions are read from blob storage
+
+Example: Query filtering ORDER_ID BETWEEN 360 AND 460 → micro-partitions 1, 2, 3, and 6 are pruned if their MIN/MAX ranges fall outside that window.
+
+Metadata is much smaller than actual data, so checking it first is significantly faster than scanning entire partitions.
+
+
+Snowflake Micro-Partitions — Interview Questions & Answers
+
+Conceptual Understanding
+1. What is a micro-partition in Snowflake, and how is it different from traditional partitioning?
+
+A micro-partition is a small, immutable, columnar file ranging from 50–500 MB of uncompressed data that Snowflake automatically creates when data is loaded. Unlike traditional systems where the user must define a partitioning key upfront (e.g., partition by date), Snowflake partitions data automatically based on the natural arrival order of the input data — no user configuration required.
+
+
+2. Why is Snowflake's storage format described as columnar, and what are the two main advantages?
+
+In a columnar format, all values for a single column are stored contiguously on disk, rather than storing all fields of a row together. The two main advantages are:
+
+Better compression — since all values in a column share the same data type, the optimal compression algorithm can be applied, reducing storage costs
+Column pruning — during a query, only the columns referenced in the projection need to be read from disk; irrelevant columns are completely skipped
+
+
+
+3. What does it mean that micro-partition files are immutable? What happens when you run an UPDATE statement?
+
+Immutable means once a micro-partition is written, it cannot be modified — write once, read many. When you run a UPDATE (or any DML operation), Snowflake does not alter the existing micro-partition. Instead, it writes a completely new micro-partition containing the updated data. The old partition is retained for versioning purposes (e.g., Time Travel).
+
+
+4. How does immutability enable the Time Travel feature in Snowflake?
+
+Because every write operation creates a new micro-partition rather than overwriting old ones, Snowflake retains previous versions of the data. Time Travel leverages this by allowing users to query or restore a table as it existed at a previous point in time — effectively pointing back to the older micro-partitions. The Metadata Service tracks this versioning history.
+
+
+Technical / Applied
+5. What partitioning key does Snowflake use when loading data, and why is this significant?
+
+Snowflake uses the natural ordering of input data as it arrives — it does not reorder data or require a user-specified key. This is significant because it simplifies the loading process (no schema design decisions needed for partitioning) but also means that if data arrives in a random or non-sequential order, pruning effectiveness may be reduced.
+
+
+6. What is the size range of a micro-partition, and what happens if a loaded file is very small?
+
+Micro-partitions range from 50 to 500 MB of uncompressed data. If a loaded file is very small (e.g., a few rows in a CSV), it will still result in a single micro-partition regardless, since 50 MB is the minimum. In the lecture example, a tiny CSV technically forms one partition even though it was illustrated as two for clarity.
+
+
+7. What specific metadata does Snowflake maintain at the micro-partition level, and how is it used?
+
+For each micro-partition, Snowflake stores:
+
+MIN and MAX values for each column → used for partition pruning and zero-compute aggregate queries
+Number of distinct values per column → helps the optimizer understand data distribution
+Total number of micro-partitions in the table
+
+At the table level, it also stores row count, table structure, and size. This metadata is stored in the Global Services Layer metadata store and is queried before any data scan occurs.
+
+
+8. If you run SELECT MIN(order_id) FROM orders, does Snowflake need a running virtual warehouse? Why or why not?
+
+No, a virtual warehouse is not needed. Since Snowflake already stores the MIN and MAX values for every column in every micro-partition within the metadata store, it can compute the global MIN simply by checking the metadata — no actual data scan is required. This makes such queries essentially free in terms of compute cost.
+
+
+Performance & Optimization
+9. Explain micro-partition pruning. How does Snowflake decide which partitions to skip?
+
+When a query includes a filter/predicate on a column, Snowflake consults the metadata store and compares the filter value against the MIN/MAX range stored for that column in each micro-partition. If a partition's range cannot possibly contain the values the query is looking for, that partition is pruned (skipped) entirely and never read from blob storage. This significantly reduces I/O and speeds up query execution.
+
+
+10. Given a table with 10 micro-partitions, which would be pruned for WHERE order_id BETWEEN 200 AND 300?
+
+Any micro-partition whose MAX value is below 200 or whose MIN value is above 300 would be safely pruned, as they cannot contain order IDs in the 200–300 range. Only partitions whose MIN/MAX range overlaps with 200–300 would be scanned.
+
+
+11. Why is querying the metadata store faster than scanning micro-partitions directly?
+
+The metadata is significantly smaller than the actual data — it only stores summary statistics (MIN, MAX, distinct counts, etc.) rather than every individual row value. Reading a small metadata record is far quicker than scanning potentially hundreds of megabytes of columnar data files in blob storage.
+
+
+12. How does the columnar format help reduce storage costs compared to a row-based format?
+
+In a row-based store, a row containing mixed data types (strings, integers, dates) cannot be compressed as efficiently because values are interleaved. In a columnar store, all values in a column share the same data type, so a highly optimized, type-specific compression algorithm can be applied (e.g., delta encoding for integers, dictionary encoding for low-cardinality strings). This results in much higher compression ratios and lower storage costs.
+
+
+Scenario-Based
+13. A teammate says "Snowflake partitioning works just like Hive — you define the partition key upfront." How would you correct them?
+
+This is a common misconception. In Hive (and many traditional systems), you must explicitly define a partition key (e.g., PARTITIONED BY (date STRING)) before loading data, and data is physically organized by that key. In Snowflake, no partition key is defined by the user. Partitioning is done automatically and transparently based on the natural arrival order of data. Snowflake calls this automatic partitioning, and the resulting files are called micro-partitions.
+
+
+14. You run a query filtering on a column with very wide MIN/MAX ranges per partition. Would pruning be effective? What does this tell you about data loading order?
+
+Pruning would be largely ineffective. If many micro-partitions have overlapping or wide MIN/MAX ranges for the filtered column, Snowflake cannot safely skip them — it must scan most or all partitions. This suggests the data was loaded in a random or mixed order relative to that column. Ideally, if queries frequently filter on a specific column, loading data pre-sorted by that column will produce micro-partitions with narrow, non-overlapping ranges, dramatically improving pruning effectiveness. This is also why Cluster Keys exist in Snowflake for large tables.
+
+
+15. After running several UPDATE statements on a large table, storage usage has increased significantly. Why might this happen?
+
+Because micro-partitions are immutable, every UPDATE writes a new micro-partition without immediately deleting the old one. The old partitions are retained to support features like Time Travel and Fail-safe. Over time, many UPDATE operations accumulate old partition versions, consuming additional storage. Once the Time Travel and Fail-safe retention periods expire, Snowflake's background services will purge the old partitions and reclaim storage. This is expected behavior and a trade-off of the immutable, versioned storage model.
