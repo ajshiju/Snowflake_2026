@@ -1,0 +1,365 @@
+Snowflake Billing & Costing — Interview Questions
+Beginner Questions
+1. What are the two Snowflake pricing models?
+
+Expected answer:
+
+On-demand
+Pre-purchased Capacity
+2. What is On-Demand pricing?
+
+Expected answer:
+
+You pay only for the resources you consume.
+
+Similar to AWS pay-as-you-go.
+
+3. What is Capacity pricing?
+
+Expected answer:
+
+Customers pre-purchase Snowflake credits/resources upfront at discounted rates.
+
+4. When is Capacity pricing beneficial?
+
+Expected answer:
+
+When workloads are predictable and long-running.
+
+Example:
+
+Heavy daily warehouse usage
+Stable ETL workloads
+Large enterprise environments
+5. When is On-Demand pricing better?
+
+Expected answer:
+
+When workloads are variable or unpredictable.
+
+Billing Components Questions
+6. What are the main Snowflake billing areas?
+
+Expected answer:
+
+Virtual Warehouse Services
+Cloud Services
+Serverless Features
+Data Storage
+Data Transfer
+7. What are Virtual Warehouse Services?
+
+Expected answer:
+
+Charges related to customer-managed virtual warehouse compute.
+
+8. What are Cloud Services?
+
+Expected answer:
+
+Compute services managed by Snowflake for metadata and query coordination operations.
+
+Examples:
+
+SHOW commands
+Metadata operations
+CREATE TABLE
+Authentication
+Query optimization
+9. What are Serverless Features?
+
+Expected answer:
+
+Features where Snowflake manages compute automatically behind the scenes.
+
+Examples:
+
+Snowpipe
+Automatic Clustering
+Materialized Views
+Search Optimization
+Replication
+10. What is billed under Data Storage?
+
+Expected answer:
+
+Tables
+Stages
+Time Travel
+Fail-safe
+Internal files
+11. When does Snowflake charge for Data Transfer?
+
+Expected answer:
+
+Cross-region transfers
+Cross-cloud transfers
+Replication across regions/clouds
+External functions
+Snowflake Credits Questions
+12. What is a Snowflake Credit?
+
+Expected answer:
+
+A billing unit used to measure compute consumption.
+
+13. What factors determine credit cost?
+
+Expected answer:
+
+Cloud provider
+Region
+Snowflake edition
+Service type
+14. Are storage costs billed using credits?
+
+Expected answer:
+
+No. Storage is billed directly in currency per TB.
+
+Virtual Warehouse Billing Questions
+15. How is Virtual Warehouse cost calculated?
+
+Expected answer:
+
+Based on:
+
+Warehouse size
+Duration warehouse is running
+16. Does query complexity directly affect warehouse billing?
+
+Expected answer:
+
+No. Billing depends on warehouse uptime, not query count.
+
+17. When does a warehouse stop consuming credits?
+
+Expected answer:
+
+When suspended.
+
+Important interview point:
+
+Suspended warehouses consume zero credits.
+18. What is the minimum billing duration for a warehouse?
+
+Expected answer:
+
+60 seconds
+19. How is billing calculated after 60 seconds?
+
+Expected answer:
+
+Per second.
+
+20. Example calculation question.
+
+Question:
+
+An XS warehouse runs for 2.5 hours.
+XS costs 1 credit/hour.
+
+How many credits are consumed?
+
+Expected answer:
+
+2.5 credits
+Cloud Services Questions
+21. Give examples of Cloud Services operations.
+
+Expected answer:
+
+SHOW
+DESCRIBE
+CREATE TABLE
+Metadata operations
+Authentication
+Optimization
+22. Do Cloud Services require a warehouse?
+
+Expected answer:
+
+Not always.
+
+23. What is the cloud services adjustment?
+
+Expected answer:
+
+Cloud Services usage up to 10% of daily warehouse compute usage is free.
+
+24. Example Cloud Services adjustment question.
+
+Question:
+
+Warehouse usage = 20 credits/day
+Cloud Services usage = 1 credit/day
+
+Will Cloud Services be billed?
+
+Expected answer:
+
+No.
+1 credit is less than 10% of 20 credits.
+25. Is cloud services adjustment calculated daily or monthly?
+
+Expected answer:
+
+Daily
+Serverless Features Questions
+26. Why are serverless features called serverless?
+
+Expected answer:
+
+Snowflake automatically manages compute resources.
+
+27. Name some serverless features.
+
+Expected answer:
+
+Snowpipe
+Materialized Views
+Automatic Clustering
+Replication
+Search Optimization
+28. Does cloud services adjustment apply to serverless features?
+
+Expected answer:
+
+No.
+
+Important interview point:
+
+Cloud services adjustment does NOT apply to serverless features.
+29. What is Snowpipe?
+
+Expected answer:
+
+A serverless ingestion service that automatically loads files into Snowflake.
+
+Storage Billing Questions
+30. How is storage billing calculated?
+
+Expected answer:
+
+Monthly based on daily average stored bytes.
+
+31. What contributes to storage costs?
+
+Expected answer:
+
+Tables
+Stages
+Time Travel
+Fail-safe
+Internal files
+32. Can compressed files reduce storage cost?
+
+Expected answer:
+
+Yes.
+
+Data Transfer Questions
+33. When do data transfer charges occur?
+
+Expected answer:
+
+Cross-region unloads
+Cross-cloud unloads
+Replication across regions/clouds
+External functions
+34. Example of chargeable transfer?
+
+Expected answer:
+
+Copying data from AWS London to Azure Tokyo.
+
+35. Is transferring within same region/cloud cheaper?
+
+Expected answer:
+
+Yes.
+
+Scenario-Based Questions
+36. Your warehouse is idle but still running. What happens?
+
+Expected answer:
+
+It continues consuming credits until suspended.
+
+37. How can you reduce warehouse cost?
+
+Expected answer:
+
+Auto suspend
+Auto resume
+Right-size warehouse
+Optimize queries
+Use caching
+38. Your cloud services usage is very high. What might be happening?
+
+Expected answer:
+
+Too many metadata operations
+Excessive small queries
+Heavy optimization/planning activity
+39. Your company wants predictable lower pricing. Best pricing model?
+
+Expected answer:
+
+Capacity pricing.
+
+40. Your workload is highly unpredictable. Best pricing model?
+
+Expected answer:
+
+On-demand pricing.
+
+Tough Interview Questions
+41. Why is warehouse auto-suspend important?
+
+Expected answer:
+
+Warehouses consume credits while active even if no queries run.
+
+42. Difference between warehouse compute and cloud services compute?
+Warehouse Compute	Cloud Services
+Query execution	Metadata & coordination
+Customer-managed	Snowflake-managed
+43. Why are serverless features convenient?
+
+Expected answer:
+
+Snowflake automatically handles scaling, sizing, and infrastructure management.
+
+44. Why can Snowpipe be cost efficient?
+
+Expected answer:
+
+It automatically scales serverless ingestion without dedicated warehouses.
+
+45. Real-world optimization strategies?
+
+Expected answer:
+
+Use auto suspend
+Choose correct warehouse size
+Use result cache
+Avoid unnecessary warehouses
+Optimize query performance
+Compress staged files
+Monitor cloud services usage
+Certification-Style Rapid Fire
+Question	Answer
+Warehouse billed when suspended?	No
+Minimum billing period?	60 seconds
+Storage billed in credits?	No
+Cloud services adjustment applies to serverless?	No
+Snowpipe serverless?	Yes
+Warehouse cost depends on query count?	No
+Storage includes fail-safe?	Yes
+Storage includes stages?	Yes
+Cross-cloud transfer charged?	Yes
+Auto suspend saves cost?	Yes
+Strong Final Interview Answer
+
+Snowflake billing consists of compute, storage, and data transfer charges. Compute costs are measured using Snowflake credits and include Virtual Warehouses, Cloud Services, and Serverless Features. Virtual Warehouse billing depends on warehouse size and runtime, while suspended warehouses consume no credits. Cloud Services support metadata and optimization operations, with charges waived up to 10% of daily warehouse compute usage. Serverless features like Snowpipe and Automatic Clustering are fully managed by Snowflake. Storage and data transfer are billed separately using flat currency-based pricing.
