@@ -356,6 +356,44 @@ Project Questions
 
 
 
+
+1️⃣ What is lazy evaluation?
+2️⃣ Difference between SparkContext and SparkSession
+3️⃣ What happens when you submit a job to Spark? (DAG Execution Flow)
+4️⃣ How do you manage missing/null values in PySpark DataFrames?
+5️⃣ Difference between DataFrame and RDD in PySpark? When would you prefer each?
+6️⃣ Dataset vs DataFrame vs RDD
+7️⃣ Different read modes in PySpark – Permissive, FailFast, DropMalformed
+8️⃣ Different join strategies in PySpark – Broadcast Join, Shuffle Hash Join, Sort Merge Join
+9️⃣ Difference between cache() and persist() with real-time use cases
+🔟 How do you define and use UDFs in PySpark?
+
+1️⃣1️⃣ groupByKey vs reduceByKey – Which is more efficient and why?
+1️⃣2️⃣ How does fault tolerance work in Spark?
+• RDD Lineage & DAG Recovery
+• Checkpointing
+• Data Replication
+
+1️⃣3️⃣ What is Unity Catalog in Databricks?
+1️⃣4️⃣ Spark persistence/storage levels – MEMORY_ONLY, DISK_ONLY, etc.
+1️⃣5️⃣ What is Catalyst Optimizer and how does it improve performance?
+1️⃣6️⃣ Data Lake vs Delta Lake – Why Delta Lake was introduced?
+1️⃣7️⃣ What is Adaptive Query Execution (AQE)?
+1️⃣8️⃣ Why is Parquet preferred over other formats?
+1️⃣9️⃣ How do you troubleshoot memory-related issues in Spark jobs?
+2️⃣0️⃣ How do you handle schema changes in source systems?
+
+2️⃣1️⃣ Rule-based vs Cost-based optimization in Catalyst Optimizer
+2️⃣2️⃣ Different partitioning strategies and trade-offs
+2️⃣3️⃣ Incremental Load vs Full Load
+2️⃣4️⃣ OPTIMIZE, VACUUM, and ZORDER in Databricks
+2️⃣5️⃣ Transformations vs Actions
+2️⃣6️⃣ Accumulators and Broadcast Variables
+2️⃣7️⃣ Repartition vs Coalesce
+2️⃣8️⃣ Challenges faced in Spark projects
+2️⃣9️⃣ What is Data Skewness and how do you handle it?
+
+
 Spark failure
 
 
