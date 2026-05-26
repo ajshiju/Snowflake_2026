@@ -1,0 +1,172 @@
+Snowflake Data Marketplace — Complete Guide
+
+Detailed Summary
+What is the Data Marketplace?
+The Data Marketplace is a public area within Snowsight (Snowflake's web UI) where users can browse, discover, and import third-party data shares directly into their Snowflake account — without any data movement, using the same technology as direct data sharing under the hood.
+
+Data Marketplace vs Direct Sharing
+Direct SharingData MarketplaceAccessPrivate — account to accountPublic — open to all accountsDiscoveryMust know the providerBrowsable catalogTechnologyShare objectsSame Share technologySetupManual SQL or UISimple wizardCostTypically freeCan be free or paidUse caseInternal/partner sharingThird-party data acquisition
+
+Two Roles in the Data Marketplace
+RoleWho Can Be ItHowData ConsumerALL Snowflake accountsAvailable by default — no setup neededData ProviderMust applyComplete a form to become a Snowflake partner
+
+To become a data provider, scroll to the bottom of the marketplace page to the "Interested in becoming a data provider" section and complete the partner application form.
+
+
+Two Types of Listings
+1. Standard Listing
+
+Provider grants access to a raw dataset to any account that clicks Get
+Out-of-the-box, immediate access
+No approval process required
+Typically free to access
+Consumer clicks Get → simple wizard → database created instantly
+
+2. Personalized Listing
+
+More control for the provider over who gets access
+Consumer clicks Request instead of Get
+Consumer fills out a form detailing:
+
+Intended use of the data
+Information about who they are
+
+
+Provider reviews and processes requests in their own time
+Establishes a relationship between provider and consumer
+Can come at a cost — used for monetizing data access
+
+
+Consumer Experience — Standard Listing
+Search Marketplace
+       │
+       ▼
+Find Standard Listing
+       │
+       ▼
+Click "GET" button
+       │
+       ▼
+Simple Wizard appears
+  - Choose database name
+  - Add roles (e.g. SYSADMIN) beyond ACCOUNTADMIN
+       │
+       ▼
+Database created instantly
+       │
+       ▼
+Sample worksheet auto-generated
+       │
+       ▼
+Run query → access live third-party data
+
+Consumer Experience — Personalized Listing
+Search Marketplace
+       │
+       ▼
+Find Personalized Listing
+       │
+       ▼
+Click "REQUEST" button
+       │
+       ▼
+Fill out form:
+  - Intended use of data
+  - Your organization details
+       │
+       ▼
+Provider reviews request
+       │
+       ▼
+Access granted (may involve payment)
+
+Key Characteristics
+
+Accessible only in Snowsight (not via SQL commands)
+Behind the scenes uses exact same Share technology as direct data sharing
+Provides access to live, real-time third-party data — not static exports
+Data can be seamlessly joined with your own Snowflake data
+Standard listings auto-create a sample worksheet with example queries
+Additional roles beyond ACCOUNTADMIN can be granted access during setup
+
+
+Interview Questions & Answers
+
+Q1. What is the Snowflake Data Marketplace and how does it differ from direct data sharing?
+
+The Data Marketplace is a public catalog within Snowsight where users can browse and import third-party data shares. The key differences from direct sharing are:
+
+Direct sharing is private and account-to-account, while the marketplace is public and open to all consumers
+The marketplace has a browsable catalog — users don't need to know the provider in advance
+Direct sharing requires manual setup by both parties, while marketplace listings use a guided wizard
+
+However, both use the exact same underlying Share technology — the marketplace is essentially a discovery and distribution layer built on top of direct sharing.
+
+
+Q2. Who can be a Data Consumer and who can be a Data Provider on the marketplace?
+
+
+Data Consumer — ALL Snowflake accounts can be data consumers by default. No setup or application is required.
+Data Provider — accounts must apply to become a Snowflake partner by completing a form accessible at the bottom of the marketplace page in the "Interested in becoming a data provider" section. Not all accounts are automatically providers.
+
+
+
+Q3. What is the difference between a Standard and Personalized listing?
+
+Standard Listing:
+
+Any account can click Get and instantly receive access
+No approval process — out-of-the-box access
+Typically free
+Best for broadly available public datasets
+
+Personalized Listing:
+
+Consumer must click Request and fill out a form
+Provider reviews and manually processes each request
+Can include a cost/charge for data access — used for monetization
+Establishes a relationship between provider and consumer
+Best for curated, customized, or commercial datasets
+
+
+
+Q4. What happens when a consumer clicks "Get" on a standard marketplace listing?
+
+A simple wizard appears that allows the consumer to:
+
+Choose a name for the new database
+Add additional roles (beyond ACCOUNTADMIN) that will have access to the shared data (e.g. SYSADMIN)
+
+Once completed, the database is created instantly from the share — just like a direct share import. Most listings also auto-generate a sample worksheet with example queries so the consumer can immediately explore the data.
+
+
+Q5. How does the Data Marketplace relate to data monetization?
+
+The marketplace enables data monetization primarily through Personalized Listings. Providers can:
+
+Require consumers to submit a request with their intended use and contact details
+Establish a commercial relationship before granting access
+Charge a fee for access to their datasets
+
+Standard listings can also be monetized but are more commonly used for freely available public data. The marketplace essentially gives data providers a storefront for their data products.
+
+
+Q6. What technology powers the Data Marketplace behind the scenes?
+
+The Data Marketplace uses the exact same Share technology as direct account-to-account data sharing. When a consumer imports a marketplace listing, Snowflake creates a database from a share object in the same way as a direct share — no data is physically moved or copied. The marketplace is purely a discovery, distribution, and access management layer built on top of the existing sharing infrastructure.
+
+
+Q7. Where is the Data Marketplace accessible and what are its key benefits?
+
+The Data Marketplace is accessible only within Snowsight (Snowflake's web-based UI). Key benefits:
+
+Access live, real-time third-party data — not static snapshots or exports
+Seamlessly join third-party data with your own Snowflake data
+No ETL pipelines needed — data is available instantly via share
+Auto-generated sample worksheets make it easy to explore new datasets
+Consumers pay only for the compute used to query the data
+
+
+
+Quick Reference Cheat Sheet
+ConceptKey DetailWhat it isPublic data sharing catalog within SnowsightUnderlying technologySame as direct Share objectsWho can consumeALL Snowflake accounts by defaultWho can provideMust apply via partner formStandard listingClick GET — instant access, no approvalPersonalized listingClick REQUEST — form required, can be paidData movementNONE — same zero-copy sharing technologyConsumer costCompute only — no storage costSample worksheetsAuto-created for most listingsMonetizationSupported via Personalized listingsAccess locationSnowsight UI onlyRoles on importACCOUNTADMIN + additional roles can be added
