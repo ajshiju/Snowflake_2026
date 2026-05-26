@@ -1,0 +1,391 @@
+SQL Questions (Medium Level)
+
+* Explain Inner Join vs Outer Join vs Left Join with use case?
+* What do you understand by Self Join. Give example?
+* How do you count number of Credit vs Debit Transactions per user. What insight can you get from this?
+* Identify and flag a user who undergoes 3 transactions within 60 seconds? 
+
+PySpark Questions
+
+* How do you optimize transformations in PySpark?
+* Difference between Repartition vs Coalesce
+* What happens internally while running a PySpark job?
+* How do you Debug a failed Spark job? 
+
+Kafka Questions
+
+* Explain your real time experience in Kafka?
+* How do you tackle flaws?
+* How do you ensure high throughput and low latency in Kafka?
+* Explain designing of real time payment processing pipeline using Kafka?
+
+Kafka + Databricks Questions
+
+* Design a pipeline involving Kafka, Databricks and Delta Lake
+* How do you handle schema evolution from Kafka to Delta Lake.
+* What is major difference between Batch vs Streaming in Databricks.
+
+System Design Questions
+
+* Design a system which can handle millions of transactions every second.
+* How do you detect and avoid duplicate processing of transactions.
+
+
+Focus areas:
+
+- Spark internals (DAGs, shuffles, executors, partitions)
+- Issue Identification (Spark UI, logs, and metrics)
+- Databricks architecture
+- Practical Support Scenarios
+
+1) Project & Architecture
+
+* Explain your end-to-end project architecture using Databricks
+* Describe Medallion Architecture (Bronze → Silver → Gold)
+* Clearly explain data flow and design decisions
+
+2) Spark Internals
+
+* Driver vs Executor roles 
+* Execution flow: Jobs -> Stages -> Tasks 
+* DAG creation and task execution 
+* Memory management and JVM GC behaviour 
+* Interpret GC logs and identify memory pressure issues 
+
+3) Performance Tuning & Troubleshooting
+
+* Data skew & shuffle handling 
+* Broadcast joins vs shuffle joins 
+* Handling OOM (Out Of Memory) errors 
+* Spark UI (Jobs, Stages, SQL tabs) 
+* Logs, metrics 
+* Cache vs Broadcast 
+* UDF vs native functions (performance impact) 
+
+4) Spark Structured Streaming
+
+* Checkpointing (offsets, state, metadata) 
+* Watermarking & late data handling 
+* State management across micro-batches 
+* Debug issues (OOM errors, Skewed partitions, Slow streaming jobs)
+
+5) Delta Lake & File Formats
+
+* ACID transactions 
+* delta_log metadata 
+* Time travel & retention 
+* Optimistic concurrency control
+* Operations (Merge, Incremental loads, Vacuum & file cleanup)
+* Compare Parquet vs Avro vs Delta vs Iceberg
+
+6) SQL & Analytical Processing
+
+* FROM -> JOIN -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY
+* Joins & aggregations
+* Window/analytical functions
+
+7) Data Modeling & File Design
+
+* Row vs Columnar formats (Parquet, ORC, Avro)
+* Best practices for Partitioning & bucketing
+
+8) Databricks Platform & Cluster Management
+
+* Cluster types (job vs all-purpose)
+* Autoscaling & VM sizing
+* Driver vs Worker nodes
+* Managed vs External tables
+* Init scripts
+
+9) Practical Scenarios (Most Important)
+
+* How do you Break down pipeline into Jobs -> Stages -> Tasks 
+* How to Debug slow Spark jobs using Spark UI
+* Ways to handle Data skew, OOM errors and Streaming failures
+* Brief about Spark 3.0 features (Adaptive Query Execution and Auto skew handling)
+
+
+ How do you calculate transaction volume for a merchant?
+* Calculate Daily Cumulative Balance for merchant?
+* Fetch out Top 3 geographies with highest customer base?
+* How do you optimize a slow SQL query?
+
+Spark Questions:
+
+* How do you handle Fault Tolerance using Spark?
+* What is the difference between Job, Stage and Task? How Spark decides number of tasks per stage?
+* What is difference between Broadcast Join vs Sort Merge Join?
+* Give example of how do you detect, Data Skew in a set of payment transactions?
+
+Project Related Questions:
+
+* Give a brief about your last project. Explain architecture?
+* What was the data volume you were handling? How did you optimize it?
+* Which part of pipeline were you handling solely?
+* Can you redesign your project using latest Databricks tools?
+* What was the design layout of your tables?
+
+System Design Questions:
+
+* Design a system which is capable of handling millions of transactions every second?
+* Design a fraud detection pipeline which functions in real time?
+
+Managerial Questions:
+
+* What motivates you to join a fintech giant?
+* If you are asked to handle a real time end to end pipeline, for which part will you need an external help?
+* Which role do you see yourself in, after 3 years, if you get selected?
+
+
+
+Coding (Notepad)
+
+• Find Second highest salary of each department?
+• From a large data set having duplicate records, keep only latest records?
+• Count Null values first column wise and then row wise?
+
+Scenario Based
+
+• Which all Integrations have you done till now?
+• How do you handle Json Data?
+• How do you handle a slow spark job?
+• Why can a job still be slow even after filtering 80% of data?
+• How does Spark optimize filters on Delta tables?
+• What happens internally during repartition?
+• How do you identify a skew in Spark?
+• How would you handle a skew during production?
+
+Technical Round Questions:
+
+• When will you use Spark and not SQL?
+• Give a brief about your past project and what was your individual responsibilities?
+• In which all places have you used Databricks ecosystem during production?
+• What do you understand by Incremental loading?
+• Difference between Full load and Incremental load?
+• How do you remove Duplicates?
+• What if Duplicates have different timestamps?
+• Difference between Parquet and Delta tables?
+• Why do you want to join Deloitte?
+
+
+
+Azure Cloud questions:
+
+1. Explain how will you build end-to-end data pipeline using Azure services? Which services will you use for ingestion, transformation and storage?
+2. How will you handle a situation where you detect incremental load?
+3. How will you handle pipeline failure and which optimisation technique will you use?
+4. How do you optimise Pyspark jobs in Azure Databricks?
+--
+
+Datawarehouse question:
+
+1. How will you design a Data Warehouse? Where will you use SCD Type 1 and SCD Type 2?
+2. Explain how to implement SCD Type 2 in Pyspark?
+--
+
+AWS Cloud questions:
+
+1. Explain how will you build end-to-end data pipeline using AWS services? Which services will you use for ingestion, transformation and storage?
+2. How AWS Glue works, and explain a real case example from any of your previous projects?
+3. When will you use Glue and when Lambda?
+4. How do you orchestrate multiple ETL jobs in AWS?
+--
+
+Joins & Pivot Questions
+
+1. Explain Different Joins & How will you fix duplicate records after Join?
+2. Convert rows into column using SQL or Pyspark?
+
+
+1) PySpark Questions:
+
+* Explain narrow vs wide transformations.
+* Convert SQL query into PySpark DataFrame code and find out the highest salary per department in the employee table.
+* How do you optimize a slow Spark job?
+* Find duplicate records in a DataFrame and remove them.
+* How do you apply Join on 3 columns.
+* Explain SCD Type 2 with a use-case.
+
+
+2) Databricks & Delta Lake Questions:
+
+* Design a pipeline which can handle incremental load using Databricks.
+* Explain in detail which Ingestion technique you will use?
+* Describe ACID properties in Delta Lake with example.
+* What is the difference between Delta Lake vs Parquet?
+* What is primary use case difference between ADF vs Databricks.
+
+3) Project Questions:
+
+* Have you worked on any Azure cloud project in past? Explain your role?
+* Did you use any optimization technique in your previous project? Give a brief on it?
+* Why did you choose this approach in your project and how did it help?
+
+4) Managerial Questions:
+
+* What do you know about the primary business domain of PwC?
+* How do you resolve a team conflict?
+* How do you talk to a client who is facing challenges in cost optimization?
+
+
+QL & Pyspark Question:
+
+•	Return matching records from 2 tables which also contain Null values
+•	Return all records from Left Table which matches with Right Table
+•	Return all records from Right table
+•	From a Travel history table containing User Id, City and Travel Date, identify the source and destination city of each journey?
+•	Find 4th highest salary for each department
+•	What is the difference between Rank & Dense_Rank
+•	Narrow Vs Wide Transformation
+•	How do you handle a Data Skew
+
+Project Related Question:
+
+•	Give a brief about your last data engineering project?
+•	How many task, stages and partitions were created in your last project?
+•	Did you face any sudden job delay in your previous project. How did you debug it?
+
+Databricks Question:
+
+•	How do you pass parameter from one Notebook to another Notebook?
+•	If records are moved from source to target table, and source is deleted. How do you identify the deleted records? (Upsert & Delete detection)
+•	Explain Databricks Architecture?
+•	Explain ACID properties with an example.
+•	A Delta table is grown to double over time. How would you optimise the performance of this Delta table?
+
+Managerial Question:
+•	Did you come across any conflict situation with your team members earlier. How did it get resolved?
+•	If you face a major misalignment with a big client related to project timelines. How do you address this?
+
+
+* Find Minimum, Maximum and Average Salary for every department in a company?
+* Find moving average sales for 3 Days (Friday, Saturday and Sunday) in a quarter?
+* From a flight database, find out total delay for each flight in a week?
+
+Databricks and Optimization Questions
+
+* If a spark job is running slow on Databricks, how will you Optimize it?
+* What do you mean by small file problem and how do you solve this problem?
+* How partitions count are decided? What will you do if partitions are too low?
+* How do you process a data of 5TB size in Databricks?
+
+Technical Round 2 (Project Related Questions)
+
+* Which all optimization techniques have you used in your last project?
+* How did you load huge csv files in any of your previous projects?
+* How did you deal with deployment. What major challenges did you face?
+* Explain your Databricks project End-to-End Architecture, mentioned in your Resume?
+* What was the data volume and did you face any major challenge handling it?
+
+Round 3 (Managerial)
+
+* If you were given a chance to handle a team, what would be your plan to ensure each member deliver their best potential?
+* How would you handle a client, whose committed deadlines have crossed?
+* How do you distribute tasks and handle dispute within team members?
+
+
+ Find 4th highest salary for a list of 10000 records?
+• What is difference between Rank and Dense Rank?
+• Explain all types of Join with a simple use case?
+
+PySpark Questions
+
+• How do you execute a PySpark code on a cluster?
+• How do you decide cluster configuration for your PySpark job?
+• How do you handle a failed job?
+
+Scenario Based Questions
+
+• Which type of errors you have come across in your last project?
+• What will be your action plan when your pipeline fails suddenly?
+• If you identify 5X times increase in data volume, what will be your steps to scale?
+• Did you come across duplicate records in your previous project? How do you fix this issue?
+
+Databricks Questions
+
+• How do you design a pipeline with the help of Databricks?
+• How do you integrate Databricks and Azure Data Factory?
+• Explain with example, ACID properties in Delta tables?
+• How Databricks interact with Data Lake?
+
+Managerial Questions
+
+• How many members were there in your last project team? Explain your exact role within your team?
+• How did you maintain clarity for a client requirement, with your client and internal team?
+• Which tool or technology did you update yourself on recently, which was new to you?
+
+
+Given a set of numbers, do following actions:
+•	Find out all Prime numbers.
+•	Reverse all numbers.
+•	Find mean and median.
+•	Display count of digits for all numbers separated by comma.
+•	Find 2nd highest number.
+
+Spark Questions
+
+•	If you find one executer slower than other, how do you address this issue?
+•	If you have huge data tables, how do you optimise joins?
+•	How do you debug a failed Spark job?
+•	What do you understand by lazy evaluation in Spark?
+•	Explain Spark architecture with an example from your previous project?
+
+Databricks Questions
+
+•	What do you understand by VACUUM in Databricks?
+•	Difference between Traditional Ingestion and Auto Loader?
+•	Explain OPTIMIZE and ZORDER with example?
+•	How do tackle late arriving records, during your daily data ingestion into Delta table?
+•	What would you do, if you find a sudden slowdown in Databricks job?
+
+AWS Questions
+
+•	Difference between EMR and Glue?
+•	Explain AWS Glue Architecture.
+•	Share an optimisation example using Redshift.
+•	Have you come across use of Lambda in any of your project. What was it?
+•	How do you partition using S3?
+
+Project Questions
+
+•	Have you done CDC Implemental in past. Explain?
+•	How much time did the pipeline take to run in your last project? How can you optimise it further?
+•	Did you find a situation where using Spark made more sense than SQL?
+•	Why did you not use Parquet and used Delta?
+•	Which all Joins did you use in your project?
+
+
+
+Spark failure
+
+
+2 AM. Production alert. 11TB pipeline stopped mid-run. Root cause: one line of PySpark I wrote. Here's the full story.
+
+Slack at 1:58 AM: "Pipeline FAILED — stage 4/9. Board deck due 8 AM." Four engineers on Zoom in minutes. Six downstream teams blocked. The silence on that call was the loudest thing I've ever heard.
+
+Spark executor OOM at stage 4. Exit code 137. Nothing had changed — same config, same volume. Or so I thought.
+
+Git blame at 3:17 AM. My commit. I had added .repartition(2000) right before a wide aggregation to "improve parallelism." It forced a full 11TB shuffle before the aggregation even started. Memory never recovered.
+
+✗ df.repartition(2000).groupBy("region").agg(sum("revenue"))
+✓ df.groupBy("region").agg(sum("revenue")) # let Spark decide
+
+"I had tested it — on 50GB of clean dev data. Not 11TB of messy production records."
+
+Deleted the line. Restarted from checkpoint at stage 3. Kept the old DAG version live as rollback — stale data beats no data. Pipeline finished at 6:14 AM. Board deck landed at 7:47 AM. Full RCA written by 10 AM.
+
+What I learned:
+
+1. Test with production schema, not clean dev data. Same skew, same nulls, 1–5% real sample.
+2. .repartition() before a wide shuffle doubles your cost. Use .coalesce() after, or trust AQE.
+3. Checkpoint placement is a design decision. We got lucky it existed at stage 3.
+
+Built a monitoring framework that week — shuffle size alerts, executor memory watermarks, stage duration drift, partition skew detection. It's caught 4 repartition-class errors in 14 months since.
+
+The best data engineers aren't the ones who never fail.
+
+They fail once, fix the conditions that allowed it, and make sure the whole team is safer because it happened. That 2 AM call is why I build differently now. Not a scar — a standard.
+
+Have you had a production incident that taught you more than any course?
+
+Share it below — real stories help the whole community. No judgment. We've all had that 2 AM call.
