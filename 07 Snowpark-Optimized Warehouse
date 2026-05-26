@@ -1,0 +1,227 @@
+Snowpark-Optimized Warehouses — Summary
+What is a Snowpark-Optimized Warehouse?
+
+A Snowpark-Optimized Warehouse is a special Snowflake warehouse type designed for:
+
+Memory-intensive workloads
+
+especially:
+
+Machine Learning
+Data Science
+Snowpark workloads
+Large in-memory processing
+Why Snowpark-Optimized Warehouses Exist
+
+Normal warehouses are optimized mainly for:
+
+SQL query execution
+
+But ML/Data Science workloads often require:
+
+Large memory
+Large DataFrames
+Model training
+Python processing
+Key Feature
+
+Snowpark-Optimized warehouses provide:
+
+More memory per node
+
+than standard warehouses.
+
+Best Use Cases
+1. Snowpark Python
+Large DataFrame operations
+2. Machine Learning
+Model training
+Feature engineering
+3. AI Workloads
+LLM processing
+NLP
+Vector processing
+Important Certification Point
+
+Snowpark-Optimized warehouses are:
+
+Memory optimized
+
+NOT necessarily:
+
+CPU optimized only
+Warehouse Type
+
+Standard warehouse:
+
+Standard compute
+
+Snowpark-Optimized warehouse:
+
+High-memory compute
+Key Benefits
+Better performance for Python workloads
+Reduced out-of-memory failures
+Improved ML scalability
+Important Limitation
+
+They are:
+
+More expensive
+
+than standard warehouses.
+
+Snowpark-Optimized Syntax
+Create Snowpark-Optimized Warehouse
+CREATE WAREHOUSE snowpark_wh
+WITH
+WAREHOUSE_SIZE = 'MEDIUM'
+WAREHOUSE_TYPE = 'SNOWPARK-OPTIMIZED';
+Example with Auto Suspend
+CREATE WAREHOUSE ml_wh
+WITH
+WAREHOUSE_SIZE = 'LARGE'
+WAREHOUSE_TYPE = 'SNOWPARK-OPTIMIZED'
+AUTO_SUSPEND = 300
+AUTO_RESUME = TRUE;
+Use Warehouse
+USE WAREHOUSE ml_wh;
+Show Warehouses
+SHOW WAREHOUSES;
+Describe Warehouse
+DESCRIBE WAREHOUSE ml_wh;
+Resize Warehouse
+ALTER WAREHOUSE ml_wh
+SET WAREHOUSE_SIZE = 'XLARGE';
+Suspend Warehouse
+ALTER WAREHOUSE ml_wh SUSPEND;
+Resume Warehouse
+ALTER WAREHOUSE ml_wh RESUME;
+Standard vs Snowpark-Optimized
+Standard Warehouse	Snowpark-Optimized
+SQL optimized	Memory optimized
+General workloads	ML/Data Science
+Lower memory per node	Higher memory per node
+Cheaper	More expensive
+Real-World Example
+Standard Warehouse
+
+Good for:
+
+ETL
+Reporting
+Dashboards
+SQL analytics
+Snowpark-Optimized Warehouse
+
+Good for:
+
+Python ML pipelines
+Large Pandas processing
+AI workloads
+Feature engineering
+Scenario Examples
+Scenario 1
+
+Python Snowpark job fails with:
+
+Out of memory
+
+Best solution:
+
+Snowpark-Optimized Warehouse
+Scenario 2
+
+Large ML model training inside Snowflake.
+
+Best warehouse:
+
+SNOWPARK-OPTIMIZED
+Interview Questions
+Beginner Questions
+1. What is a Snowpark-Optimized Warehouse?
+
+Expected answer:
+
+A high-memory warehouse optimized for Snowpark and ML workloads.
+
+2. Why use Snowpark-Optimized Warehouses?
+
+Expected answer:
+
+Large memory workloads
+Python processing
+Machine learning
+3. Main advantage over standard warehouses?
+
+Expected answer:
+
+More memory per node
+4. Are Snowpark-Optimized warehouses cheaper?
+
+Expected answer:
+
+No
+5. Which workloads benefit most?
+
+Expected answer:
+
+ML
+AI
+Snowpark Python
+Large DataFrames
+Syntax Questions
+6. Syntax to create Snowpark-Optimized warehouse?
+CREATE WAREHOUSE ml_wh
+WITH
+WAREHOUSE_TYPE = 'SNOWPARK-OPTIMIZED';
+7. Important warehouse property?
+
+Expected answer:
+
+WAREHOUSE_TYPE = 'SNOWPARK-OPTIMIZED'
+Scenario Questions
+8. Your Snowpark Python job runs out of memory. Best solution?
+
+Expected answer:
+
+Snowpark-Optimized Warehouse
+9. Best warehouse for ML model training?
+
+Expected answer:
+
+Snowpark-Optimized
+10. Best warehouse for BI dashboards?
+
+Expected answer:
+
+Standard warehouse
+Tough Interview Questions
+11. Why are Snowpark workloads memory intensive?
+
+Expected answer:
+
+Python DataFrames and ML models require large in-memory processing.
+
+12. Why not use Snowpark-Optimized for everything?
+
+Expected answer:
+
+Higher cost
+13. Difference between scaling up and Snowpark optimization?
+Scaling Up	Snowpark-Optimized
+More compute	More memory per node
+General performance	Memory-heavy workloads
+Rapid Fire Questions
+Question	Answer
+Snowpark-Optimized = high memory?	Yes
+Good for ML?	Yes
+Good for Python?	Yes
+More expensive?	Yes
+Standard warehouse enough for BI?	Yes
+Uses WAREHOUSE_TYPE parameter?	Yes
+Helps memory-intensive jobs?	Yes
+Mainly for SQL dashboards?	No
+Strong Final Interview Answer
+
+Snowpark-Optimized Warehouses are specialized Snowflake virtual warehouses designed for memory-intensive workloads such as Snowpark Python, machine learning, AI, and large DataFrame processing. Unlike standard warehouses, they provide significantly more memory per node, improving performance and reducing out-of-memory issues for ML and Python workloads. They are created using the WAREHOUSE_TYPE='SNOWPARK-OPTIMIZED' parameter and are best suited for advanced analytics rather than traditional SQL reporting workloads.
