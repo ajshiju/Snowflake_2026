@@ -1,0 +1,338 @@
+Snowflake Connectivity & Partner Tools — Interview Questions
+
+Based on your notes
+
+Beginner Interview Questions
+1. How can applications connect to Snowflake?
+
+Expected answer:
+
+Snowflake supports multiple connectors and drivers including:
+
+Python Connector
+JDBC
+ODBC
+Spark Connector
+Kafka Connector
+Node.js
+Go
+PHP
+.NET
+2. What is SnowSQL?
+
+Expected answer:
+
+SnowSQL is Snowflake’s command-line client used to connect and execute SQL commands against Snowflake.
+
+3. What is the Snowflake Python Connector?
+
+Expected answer:
+
+It is a Python package that allows applications to connect programmatically to Snowflake and execute SQL commands.
+
+4. What is needed to connect using Python?
+
+Expected answer:
+
+Typically:
+
+Username
+Password
+Account Identifier
+Warehouse
+Database
+Schema
+5. What is a cursor in Snowflake Python connectivity?
+
+Expected answer:
+
+A cursor is an object used to execute SQL statements and fetch results from Snowflake.
+
+6. Sample Python connection code?
+import snowflake.connector
+
+conn = snowflake.connector.connect(
+    user='USER',
+    password='PASSWORD',
+    account='ACCOUNT'
+)
+
+cur = conn.cursor()
+
+cur.execute("SELECT CURRENT_VERSION()")
+
+print(cur.fetchone())
+7. What is JDBC?
+
+Expected answer:
+
+JDBC (Java Database Connectivity) is a Java API used to connect Java applications to Snowflake.
+
+8. What is ODBC?
+
+Expected answer:
+
+ODBC is a standard interface that allows external tools and applications to connect to Snowflake.
+
+9. Why are JDBC and ODBC important?
+
+Expected answer:
+
+They allow third-party applications like BI tools and reporting platforms to connect to Snowflake.
+
+10. Which programming languages does Snowflake natively support?
+
+Expected answer:
+
+Python
+Go
+PHP
+.NET
+Node.js
+Java (via JDBC)
+C++ (via ODBC/JDBC)
+Spark & Kafka Questions
+11. What is the Snowflake Spark Connector?
+
+Expected answer:
+
+It allows Spark clusters to read from and write to Snowflake tables.
+
+12. From Spark’s perspective, Snowflake behaves like what?
+
+Expected answer:
+
+Like any other Spark data source such as:
+
+Postgres
+HDFS
+S3
+13. What is the Snowflake Kafka Connector?
+
+Expected answer:
+
+It loads streaming data from Kafka topics into Snowflake tables.
+
+14. Which Kafka versions are supported?
+
+Expected answer:
+
+Confluent Kafka
+Open-source Kafka
+15. Real-world Kafka use case?
+
+Expected answer:
+
+Streaming application logs, IoT data, clickstream data, or banking transactions into Snowflake in near real-time.
+
+Partner Tool Questions
+16. What are Snowflake Technology Partners?
+
+Expected answer:
+
+Certified third-party tools that integrate natively with Snowflake.
+
+17. Why use certified partner tools?
+
+Expected answer:
+
+Reliable integration
+Production-grade connectivity
+Better support
+Optimized performance
+Secure connectivity
+18. What are the main categories of Snowflake partner tools?
+
+Expected answer:
+
+Business Intelligence
+Data Integration
+Security & Governance
+SQL Development & Management
+Machine Learning & Data Science
+BI Tool Questions
+19. Name some BI tools integrated with Snowflake.
+
+Expected answer:
+
+Tableau
+Power BI
+QlikView
+ThoughtSpot
+20. Why integrate BI tools with Snowflake?
+
+Expected answer:
+
+To build dashboards, visualizations, and reporting solutions using Snowflake data.
+
+Data Integration Questions
+21. What is data integration?
+
+Expected answer:
+
+Moving and transforming data from source systems into target systems like Snowflake.
+
+22. Name some Snowflake data integration partners.
+
+Expected answer:
+
+dbt
+Informatica
+Pentaho
+Fivetran
+23. What is Fivetran?
+
+Expected answer:
+
+Fivetran is an automated ELT data integration tool used to load data into Snowflake.
+
+24. What is dbt commonly used for?
+
+Expected answer:
+
+SQL-based transformations and data modeling inside Snowflake.
+
+Security & Governance Questions
+25. Name some governance/security partner tools.
+
+Expected answer:
+
+Collibra
+Datadog
+HashiCorp Vault
+data.world
+26. What is HashiCorp Vault used for?
+
+Expected answer:
+
+Secure storage of sensitive information such as passwords, tokens, and encryption keys.
+
+27. What is Collibra used for?
+
+Expected answer:
+
+Data governance and metadata management.
+
+Partner Connect Questions
+28. What is Snowflake Partner Connect?
+
+Expected answer:
+
+A Snowflake feature that simplifies setup and integration with certified partner tools.
+
+29. What objects can Partner Connect automatically create?
+
+Expected answer:
+
+Database
+Warehouse
+Roles
+Users
+Permissions
+30. Explain Fivetran setup using Partner Connect.
+
+Expected answer:
+
+Snowflake automatically creates required objects and credentials, allowing quick integration with Fivetran through a setup wizard.
+
+ML & Data Science Questions
+31. Name some ML/Data Science tools integrated with Snowflake.
+
+Expected answer:
+
+DataRobot
+Dataiku
+Amazon SageMaker
+Zepl
+32. Why integrate ML tools with Snowflake?
+
+Expected answer:
+
+To perform machine learning directly using Snowflake data without moving data externally.
+
+SQL Development Questions
+33. Name SQL development partner tools.
+
+Expected answer:
+
+SqlDBM
+SeekWell
+Agile Data Engine
+34. What is SqlDBM used for?
+
+Expected answer:
+
+Data modeling and SQL development.
+
+Scenario-Based Questions
+35. Your Spark job needs to load data into Snowflake. What would you use?
+
+Expected answer:
+
+Snowflake Spark Connector.
+
+36. Your company wants real-time streaming into Snowflake. Best solution?
+
+Expected answer:
+
+Kafka Connector.
+
+37. Business users need dashboards from Snowflake data. Which tools help?
+
+Expected answer:
+
+Tableau
+Power BI
+ThoughtSpot
+QlikView
+38. Your company wants automated ELT pipelines into Snowflake.
+
+Expected answer:
+
+Fivetran
+dbt
+Informatica
+39. How would you securely store Snowflake credentials?
+
+Expected answer:
+
+Using tools like HashiCorp Vault.
+
+40. Why is Partner Connect useful?
+
+Expected answer:
+
+It reduces setup complexity and speeds up integration with partner tools.
+
+Tough Interview Questions
+41. Difference between JDBC and ODBC?
+JDBC	ODBC
+Java-specific	Language-independent
+Used mainly by Java apps	Used by many tools/languages
+42. Why use Spark Connector instead of JDBC for large data loads?
+
+Expected answer:
+
+Spark Connector supports distributed parallel reads/writes and performs much better for big data workloads.
+
+43. Why are connectors important in Data Engineering?
+
+Expected answer:
+
+Connectors allow seamless integration between Snowflake and ingestion, transformation, analytics, and ML systems.
+
+44. Real-world architecture example?
+Kafka
+   ↓
+Snowflake Kafka Connector
+   ↓
+Snowflake Tables
+   ↓
+dbt Transformations
+   ↓
+Power BI Dashboards
+45. Explain Snowflake ecosystem in one answer.
+
+Expected answer:
+
+Snowflake provides a broad ecosystem of connectors, drivers, and certified partner tools that support ingestion, transformation, analytics, governance, machine learning, and visualization workloads.
