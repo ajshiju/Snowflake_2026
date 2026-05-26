@@ -1,0 +1,356 @@
+Snowflake Warehouse Sizes & Cost — Summary
+Virtual Warehouse Sizes
+
+Snowflake provides:
+
+10 warehouse sizes
+
+using:
+
+T-shirt sizing model
+Warehouse Sizes
+XSMALL
+SMALL
+MEDIUM
+LARGE
+XLARGE
+2XLARGE
+3XLARGE
+4XLARGE
+5XLARGE
+6XLARGE
+What Does T-Shirt Sizing Mean?
+
+T-shirt sizes are:
+
+Relative compute power estimates
+
+Users do NOT need to know:
+
+Actual EC2 sizes
+CPU counts
+Memory specs
+Disk sizes
+
+Snowflake abstracts infrastructure complexity.
+
+Compute Scaling Behavior
+
+Each warehouse size increase:
+
+Approximately doubles compute resources
+
+Meaning:
+
+More CPU
+More memory
+More parallelism
+Performance Behavior
+General Rule
+
+Larger warehouses:
+
+Usually improve query performance
+
+BUT:
+
+Not every query benefits from larger warehouses.
+Small Query Example
+
+Simple query on tiny table:
+
+Little or no performance gain
+
+even with huge warehouse.
+
+Large Query Example
+
+Complex query with:
+
+Large joins
+Aggregations
+Huge tables
+Many predicates
+
+may benefit significantly from:
+
+Larger warehouse size
+Snowflake Recommendation
+
+Best practice:
+
+Experiment with representative workloads
+
+Start with:
+
+XSMALL
+
+If performance insufficient:
+
+Scale up gradually
+Data Loading Recommendations
+
+For COPY/data ingestion:
+
+Snowflake recommends usually:
+
+SMALL
+MEDIUM
+LARGE
+Important Point
+
+Data loading performance depends mostly on:
+
+Number of files
+Concurrency
+
+NOT strongly on compute size.
+
+Cost Scaling
+
+Important certification point:
+
+As warehouse size doubles,
+cost also doubles.
+Example Hourly Credit Usage
+Size	Credits / Hour
+XSMALL	1
+SMALL	2
+MEDIUM	4
+LARGE	8
+XLARGE	16
+
+Each level approximately doubles.
+
+Billing Model
+
+Snowflake uses:
+
+Per-second billing
+
+AFTER:
+
+Initial 60-second minimum charge
+Important Billing Rule
+
+Even if warehouse runs:
+
+30 seconds
+
+You are billed:
+
+Full 60 seconds
+Warehouse Billing Depends On
+Warehouse running time
+Warehouse size
+
+NOT:
+
+Number of queries
+Example Cost Calculation
+Example 1
+
+XSMALL warehouse:
+
+1 credit/hour
+
+Runs for:
+
+2.5 hours
+
+Total:
+
+2.5 credits
+Credit Monetary Value
+
+Snowflake credit value depends on:
+
+Cloud provider
+Region
+Snowflake edition
+Example Pricing
+Standard Edition AWS London
+1 XSMALL warehouse
+1 hour
+≈ 1 credit
+≈ $2
+Enterprise Edition AWS Tokyo
+
+Large warehouse:
+
+8 credits/hour
+
+3 hours:
+
+24 credits
+≈ $103
+Important Interview Concepts
+Scale Up vs Scale Out
+Scale Up	Scale Out
+Bigger warehouse size	More clusters
+Faster single query	Better concurrency
+Cost Optimization Tips
+Use smallest warehouse possible
+Auto suspend idle warehouses
+Scale up only when needed
+Separate ETL and BI workloads
+Warehouse Syntax
+Create Warehouse
+CREATE WAREHOUSE my_wh
+WITH
+WAREHOUSE_SIZE = 'SMALL'
+AUTO_SUSPEND = 300
+AUTO_RESUME = TRUE;
+Resize Warehouse
+ALTER WAREHOUSE my_wh
+SET WAREHOUSE_SIZE = 'LARGE';
+Suspend Warehouse
+ALTER WAREHOUSE my_wh SUSPEND;
+Resume Warehouse
+ALTER WAREHOUSE my_wh RESUME;
+Show Warehouses
+SHOW WAREHOUSES;
+Describe Warehouse
+DESCRIBE WAREHOUSE my_wh;
+Interview Questions & Answers
+Beginner Questions
+1. How many warehouse sizes does Snowflake support?
+
+Expected answer:
+
+10
+2. What sizing model does Snowflake use?
+
+Expected answer:
+
+T-shirt sizing
+3. What happens when warehouse size increases?
+
+Expected answer:
+
+Compute resources approximately double
+4. Does every query benefit from larger warehouse size?
+
+Expected answer:
+
+No
+5. Which workloads benefit most from larger warehouses?
+
+Expected answer:
+
+Complex queries
+Large joins
+Heavy aggregations
+Huge datasets
+Billing Questions
+6. How are warehouses billed?
+
+Expected answer:
+
+Per second after first 60 seconds
+7. What is the minimum billing duration?
+
+Expected answer:
+
+60 seconds
+8. Are warehouses billed by query count?
+
+Expected answer:
+
+No
+9. What determines warehouse cost?
+
+Expected answer:
+
+Warehouse size
+Running duration
+10. Does suspended warehouse consume credits?
+
+Expected answer:
+
+No
+Performance Questions
+11. Why do larger warehouses improve performance?
+
+Expected answer:
+
+More CPU
+More memory
+More parallel processing
+12. Why may tiny queries not benefit from larger warehouses?
+
+Expected answer:
+
+Query complexity too small to utilize extra compute.
+
+13. What affects data loading performance most?
+
+Expected answer:
+
+File count
+Concurrency
+14. What warehouse sizes are usually enough for loading?
+
+Expected answer:
+
+SMALL / MEDIUM / LARGE
+Scenario Questions
+15. One huge query runs slowly. What should you do?
+
+Expected answer:
+
+Scale UP warehouse size
+16. Many users run dashboards simultaneously. What helps?
+
+Expected answer:
+
+Scale OUT using multi-cluster warehouse
+17. Warehouse costs are too high. What should you do?
+
+Expected answer:
+
+Reduce size
+Use auto suspend
+Optimize queries
+18. Why might frequent suspend/resume increase costs?
+
+Expected answer:
+
+Repeated 60-second minimum billing
+Tough Interview Questions
+19. Why does Snowflake hide actual infrastructure specs?
+
+Expected answer:
+
+To abstract cloud infrastructure complexity from users.
+
+20. Difference between warehouse performance and concurrency scaling?
+Warehouse Sizing	Multi-Cluster
+Faster queries	More concurrent users
+Scale UP	Scale OUT
+21. Why is workload testing important in Snowflake?
+
+Expected answer:
+
+Because optimal warehouse sizing depends on actual workload characteristics.
+
+22. Why can oversized warehouses waste money?
+
+Expected answer:
+
+Simple queries may not benefit from extra compute.
+Rapid Fire Questions
+Question	Answer
+Snowflake uses T-shirt sizing?	Yes
+Each size roughly doubles compute?	Yes
+Warehouses billed by query count?	No
+Suspended warehouse billed?	No
+Minimum billing period?	60 sec
+XSMALL costs 1 credit/hour?	Yes
+Large costs 8 credits/hour?	Yes
+Data loading strongly tied to warehouse size?	No
+Bigger warehouse always faster?	No
+Warehouse resize possible anytime?	Yes
+Strong Final Interview Answer
+
+Snowflake Virtual Warehouses use a T-shirt sizing model ranging from XSMALL to 6XLARGE, where each size approximately doubles compute resources such as CPU and memory. Larger warehouses generally improve performance for complex queries and large datasets, while simple queries may see little benefit. Warehouses are billed based on size and runtime rather than query count, with per-second billing after an initial 60-second minimum charge. Snowflake recommends workload-based experimentation to determine optimal warehouse sizing, and for most ingestion workloads, smaller warehouses are usually sufficient because loading performance depends more on file concurrency than raw compute power.
