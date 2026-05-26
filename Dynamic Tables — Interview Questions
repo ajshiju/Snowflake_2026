@@ -1,0 +1,333 @@
+Snowflake Dynamic Tables — Interview Questions & Answers
+1. What is a Dynamic Table in Snowflake?
+
+A Dynamic Table is a table automatically refreshed by Snowflake based on a query definition and freshness target (TARGET_LAG).
+
+It helps build ELT pipelines without manually creating:
+
+Streams
+Tasks
+MERGE statements
+
+Instead of procedural ETL, Dynamic Tables use a declarative approach.
+
+2. Difference between Dynamic Table and regular table?
+Regular Table	Dynamic Table
+Static data	Auto-refreshes
+Manual insert/update	Snowflake refreshes automatically
+No dependency tracking	Tracks upstream changes
+Used for storage	Used for pipelines/transformation
+3. What is TARGET_LAG?
+
+TARGET_LAG defines the maximum allowed staleness of data.
+
+Example:
+
+TARGET_LAG = '10 minutes'
+
+Meaning:
+
+Snowflake tries to keep the table within 10 minutes of source data.
+
+It is NOT exactly a schedule.
+
+4. What are the refresh modes?
+
+Snowflake supports:
+
+Mode	Meaning
+INCREMENTAL	Refresh only changed rows
+FULL	Recompute entire table
+AUTO	Snowflake chooses at creation time
+5. Difference between incremental and full refresh?
+Incremental	Full
+Processes changed data only	Reprocesses everything
+Faster	Slower
+Lower compute cost	Higher compute cost
+Better for large tables	Better for unsupported queries
+6. What happens in AUTO refresh mode?
+
+Snowflake decides whether to use:
+
+INCREMENTAL
+or
+FULL
+
+Important interview point:
+
+AUTO chooses only once during creation.
+It does not continuously switch later.
+7. What queries support incremental refresh?
+
+Generally supported:
+
+SELECT
+JOIN
+GROUP BY
+FILTERS
+UNION ALL
+
+May not support incremental efficiently:
+
+DISTINCT
+Complex window functions
+Non-deterministic functions
+Some outer joins
+
+Then Snowflake may use FULL refresh.
+
+8. What is DOWNSTREAM target lag?
+
+Example:
+
+TARGET_LAG = DOWNSTREAM
+
+Meaning:
+
+This table refreshes only when downstream tables need it.
+
+Useful in pipeline chaining.
+
+9. Explain Dynamic Table chaining.
+
+Example:
+
+raw_orders
+   ↓
+dt_clean_orders
+   ↓
+dt_customer_summary
+   ↓
+dt_dashboard
+
+Each dynamic table depends on another.
+
+Snowflake manages refresh order automatically.
+
+10. Difference between Dynamic Table and Materialized View?
+Dynamic Table	Materialized View
+ETL pipelines	Query acceleration
+More flexible transformations	Limited transformations
+Uses target lag	Automatic refresh
+Can chain tables	Usually no chaining
+
+Simple explanation:
+
+Materialized View → Faster queries
+Dynamic Table → Automated transformations
+11. Difference between Dynamic Tables and Streams + Tasks?
+Dynamic Table	Streams + Tasks
+Declarative	Procedural
+Less code	More code
+Easier maintenance	More control
+Snowflake manages refresh	User manages logic
+12. Can Dynamic Tables replace Streams and Tasks?
+
+Sometimes yes.
+
+But Streams + Tasks are still better when:
+
+Complex MERGE logic
+External API calls
+Custom orchestration
+Multi-step conditional workflows
+13. Can Dynamic Tables be queried directly?
+
+Yes.
+
+They behave like normal tables.
+
+SELECT * FROM dt_sales_summary;
+14. Can we manually refresh a Dynamic Table?
+
+Yes.
+
+ALTER DYNAMIC TABLE dt_sales REFRESH;
+15. How do you suspend a Dynamic Table?
+ALTER DYNAMIC TABLE dt_sales SUSPEND;
+
+Resume:
+
+ALTER DYNAMIC TABLE dt_sales RESUME;
+16. What warehouse does a Dynamic Table use?
+
+The warehouse specified during creation.
+
+Example:
+
+WAREHOUSE = compute_wh
+
+That warehouse performs refresh operations.
+
+17. How do you monitor Dynamic Tables?
+
+Commands:
+
+SHOW DYNAMIC TABLES;
+
+Check refresh history:
+
+SELECT *
+FROM TABLE(INFORMATION_SCHEMA.DYNAMIC_TABLE_REFRESH_HISTORY());
+18. What happens if source data changes?
+
+Snowflake detects changes and refreshes the dynamic table automatically.
+
+For incremental refresh:
+
+Only changed micro-partitions/rows are processed.
+19. What happens if refresh fails?
+
+Dynamic table becomes stale.
+
+Common reasons:
+
+Warehouse suspended
+Permission issues
+Unsupported incremental logic
+Source object dropped
+Time travel retention expired
+20. Can Dynamic Tables use joins?
+
+Yes.
+
+Example:
+
+SELECT
+    o.order_id,
+    c.customer_name
+FROM orders o
+JOIN customers c
+ON o.customer_id = c.customer_id;
+21. Can Dynamic Tables use window functions?
+
+Some are supported.
+
+But complex window functions may force FULL refresh.
+
+22. What is the minimum TARGET_LAG?
+60 seconds
+23. What happens if warehouse is suspended?
+
+Refresh pauses until warehouse resumes.
+
+Dynamic table may become stale.
+
+24. Can Dynamic Tables read from another Dynamic Table?
+
+Yes.
+
+Very common design.
+
+Example:
+
+Bronze → Silver → Gold
+25. Real-world use case?
+
+Example:
+
+Raw banking transactions
+   ↓
+Clean transactions
+   ↓
+Daily customer metrics
+   ↓
+Risk dashboard summary
+
+Dynamic tables automate the pipeline.
+
+Scenario-Based Interview Questions
+26. Why would you choose Dynamic Tables over Streams + Tasks?
+
+Possible answer:
+
+Dynamic Tables reduce operational overhead because Snowflake automatically handles dependency tracking and refresh logic. For straightforward ELT transformations and aggregations, they simplify development significantly.
+
+27. When would you NOT use Dynamic Tables?
+
+Good answer:
+
+Complex MERGE requirements
+Custom retry logic
+External integrations
+Real-time sub-second pipelines
+Complex orchestration
+28. Why is incremental refresh important?
+
+Because:
+
+Less compute
+Faster refresh
+Better scalability
+Processes only changed data
+
+Especially important for large tables.
+
+29. How does Snowflake know what changed?
+
+Snowflake internally tracks changes using metadata and micro-partitions.
+
+You do NOT manually create streams.
+
+30. Can Dynamic Tables help Medallion Architecture?
+
+Yes.
+
+Example:
+
+Bronze = raw data
+Silver = cleaned/transformed
+Gold = aggregated business tables
+
+Dynamic tables automate movement between layers.
+
+Tricky Interview Questions
+31. Is TARGET_LAG a scheduler?
+
+No.
+
+Important answer:
+
+TARGET_LAG defines freshness expectation,
+not exact execution timing.
+32. Does AUTO refresh mode continuously optimize?
+
+No.
+
+AUTO decides once during creation only.
+33. Do Dynamic Tables store data physically?
+
+Yes.
+
+Unlike views, Dynamic Tables physically store results.
+
+34. Can Dynamic Tables replace Airflow?
+
+No.
+
+Dynamic tables handle data refreshes, but Airflow handles broader orchestration:
+
+Cross-system workflows
+API calls
+Notifications
+Dependencies across platforms
+35. What is the biggest advantage of Dynamic Tables?
+
+Best answer:
+
+Simplified pipeline management with automatic incremental refresh handling.
+Short Rapid-Fire Questions
+Question	Quick Answer
+Dynamic table stores data physically?	Yes
+Supports joins?	Yes
+Supports aggregation?	Yes
+Supports chaining?	Yes
+Manual refresh possible?	Yes
+Uses warehouse compute?	Yes
+Minimum lag?	60 seconds
+Incremental faster than full?	Yes
+Similar to materialized view?	Partially
+Replacement for streams/tasks?	Sometimes
+Strong 2-Minute Interview Answer
+
+Dynamic Tables in Snowflake are automatically refreshed tables used for ELT pipelines. They simplify data engineering by removing the need for manually managing streams, tasks, and merge logic. Dynamic tables support incremental and full refresh modes and use TARGET_LAG to define data freshness requirements. They are commonly used in medallion architectures for bronze, silver, and gold transformations. Incremental refresh is preferred because it processes only changed data, improving performance and reducing compute costs.
