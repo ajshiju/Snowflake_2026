@@ -1,0 +1,318 @@
+Snowflake Warehouse States — Summary
+
+Virtual Warehouses can exist in:
+
+STARTED
+SUSPENDED
+RESIZING
+1. STARTED State
+
+Meaning:
+
+Warehouse is active
+Ready to process queries
+Consuming credits
+
+Example:
+
+ALTER WAREHOUSE my_wh RESUME;
+2. SUSPENDED State
+
+Meaning:
+
+Warehouse is shut down
+No compute running
+Consumes ZERO credits
+
+Example:
+
+ALTER WAREHOUSE my_wh SUSPEND;
+Important Behavior
+
+When suspend command runs:
+
+Current running queries finish first
+Then warehouse shuts down
+3. RESIZING State
+
+Meaning:
+
+Warehouse size is changing
+
+Important point:
+
+Warehouses can resize while queries are running.
+Auto Suspend
+What is AUTO_SUSPEND?
+
+Automatically suspends warehouse after inactivity.
+
+Example:
+
+AUTO_SUSPEND = 300
+
+Meaning:
+
+Suspend after 300 seconds (5 minutes) idle
+Important Certification Points
+Default AUTO_SUSPEND
+600 seconds (10 minutes)
+Setting NULL or 0
+AUTO_SUSPEND = NULL
+
+or
+
+AUTO_SUSPEND = 0
+
+Meaning:
+
+Warehouse never auto suspends
+Important Caveats
+
+Very low AUTO_SUSPEND values may not behave exactly as expected.
+
+Reason:
+
+Background suspend process runs about every 60 seconds.
+Why Not Always Use Tiny AUTO_SUSPEND?
+
+Potential drawbacks:
+
+Warehouse cache cleared
+Cold start delays
+Repeated 60-second billing minimum
+Warehouse Cache Impact
+
+When warehouse suspends:
+
+Local SSD cache is cleared
+
+Result:
+
+Next queries may run slower
+Auto Resume
+What is AUTO_RESUME?
+
+Automatically resumes warehouse when query arrives.
+
+Example:
+
+AUTO_RESUME = TRUE
+
+Meaning:
+
+Warehouse automatically wakes up on query
+Default AUTO_RESUME
+TRUE
+Why Disable AUTO_RESUME?
+
+Possible reason:
+
+Stricter cost control
+Manual startup only
+Initially Suspended
+What is INITIALLY_SUSPENDED?
+
+Controls warehouse state during creation.
+
+Example:
+
+INITIALLY_SUSPENDED = TRUE
+
+Meaning:
+
+Warehouse created in suspended state
+Default Behavior
+
+Without parameter:
+
+Warehouse starts immediately after creation
+Why Use INITIALLY_SUSPENDED?
+
+Good use case:
+
+Create warehouse without immediate billing
+
+Especially when:
+
+Only metadata/table creation is needed initially
+Full Create Warehouse Syntax
+CREATE WAREHOUSE my_wh
+WITH
+WAREHOUSE_SIZE = 'SMALL'
+AUTO_SUSPEND = 300
+AUTO_RESUME = TRUE
+INITIALLY_SUSPENDED = TRUE;
+Resume Warehouse Syntax
+ALTER WAREHOUSE my_wh RESUME;
+Suspend Warehouse Syntax
+ALTER WAREHOUSE my_wh SUSPEND;
+Change Auto Suspend
+ALTER WAREHOUSE my_wh
+SET AUTO_SUSPEND = 60;
+Change Auto Resume
+ALTER WAREHOUSE my_wh
+SET AUTO_RESUME = FALSE;
+Check Warehouse Details
+SHOW WAREHOUSES;
+Describe Warehouse
+DESCRIBE WAREHOUSE my_wh;
+Interview Questions & Answers
+Beginner Questions
+1. What are the three warehouse states?
+
+Expected answer:
+
+STARTED
+SUSPENDED
+RESIZING
+2. Which warehouse state consumes credits?
+
+Expected answer:
+
+STARTED
+3. Does suspended warehouse consume credits?
+
+Expected answer:
+
+No
+4. What happens when warehouse is suspended?
+
+Expected answer:
+
+Compute nodes are removed
+Cache cleared
+No credits consumed
+5. What does AUTO_SUSPEND do?
+
+Expected answer:
+
+Automatically suspends warehouse after inactivity.
+
+6. Default AUTO_SUSPEND value?
+
+Expected answer:
+
+600 seconds
+7. What does AUTO_RESUME do?
+
+Expected answer:
+
+Automatically resumes warehouse when query arrives.
+
+8. Default AUTO_RESUME value?
+
+Expected answer:
+
+TRUE
+9. What does INITIALLY_SUSPENDED do?
+
+Expected answer:
+
+Creates warehouse in suspended state initially.
+
+10. Can warehouse resize while queries run?
+
+Expected answer:
+
+Yes
+Cost Optimization Questions
+11. Why is AUTO_SUSPEND important?
+
+Expected answer:
+
+Reduces idle compute cost
+12. Why can very low AUTO_SUSPEND values be bad?
+
+Expected answer:
+
+Frequent suspend/resume
+Cold cache
+Repeated minimum billing
+13. What happens to warehouse cache after suspend?
+
+Expected answer:
+
+Cache is cleared
+14. Why may queries become slower after resume?
+
+Expected answer:
+
+Warehouse cache becomes cold
+15. What is Snowflake minimum warehouse billing duration?
+
+Expected answer:
+
+60 seconds
+Scenario Questions
+16. You want lowest cost for infrequent queries. What should you enable?
+
+Expected answer:
+
+AUTO_SUSPEND + AUTO_RESUME
+17. Your dashboard queries slowed after warehouse resumed. Why?
+
+Expected answer:
+
+Cache was cleared during suspension.
+
+18. Why might warehouse resume take a few seconds?
+
+Expected answer:
+
+Warehouse provisioning/startup time
+19. You want warehouse created but not billed immediately. What parameter helps?
+
+Expected answer:
+
+INITIALLY_SUSPENDED = TRUE
+20. Why might some companies disable AUTO_RESUME?
+
+Expected answer:
+
+Stricter cost control
+Manual approval/startup
+Tough Interview Questions
+21. Difference between suspend and resize?
+Suspend	Resize
+Stops compute	Changes compute size
+No billing	Billing continues
+Cache cleared	Cache may reset
+22. Why isn’t AUTO_SUSPEND below 60s guaranteed?
+
+Expected answer:
+
+Suspend background process checks approximately every 60 seconds.
+
+23. Why can aggressive suspend/resume increase costs?
+
+Expected answer:
+
+Repeated minimum 60-second billing
+24. Real-world warehouse strategy?
+
+Expected answer:
+
+ETL warehouse:
+Longer auto suspend
+
+BI warehouse:
+Shorter auto suspend
+
+Data science warehouse:
+Manual control sometimes
+Rapid Fire Questions
+Question	Answer
+Started warehouse billed?	Yes
+Suspended warehouse billed?	No
+Default auto suspend?	600 sec
+Default auto resume?	TRUE
+Cache cleared on suspend?	Yes
+Warehouse can resize while running?	Yes
+AUTO_SUSPEND = 0 means?	Never suspend
+Resume warehouse command?	ALTER WAREHOUSE RESUME
+Suspend warehouse command?	ALTER WAREHOUSE SUSPEND
+INITIALLY_SUSPENDED creates stopped warehouse?	Yes
+Strong Final Interview Answer
+
+Snowflake Virtual Warehouses support three states: STARTED, SUSPENDED, and RESIZING. Started warehouses actively process queries and consume credits, while suspended warehouses consume no credits because compute nodes are shut down. Warehouses can automatically suspend after inactivity using the AUTO_SUSPEND parameter and automatically resume using AUTO_RESUME. Snowflake also supports INITIALLY_SUSPENDED to prevent immediate billing after creation. A key performance consideration is that warehouse cache is cleared during suspension, which may cause slower query performance after resume due to cold cache effects.
