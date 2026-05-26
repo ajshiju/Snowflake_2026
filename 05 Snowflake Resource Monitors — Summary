@@ -320,4 +320,23 @@ Can monitor single warehouse?	Yes
 Used for cost governance?	Yes
 Strong Final Interview Answer
 
+
+1. Monitoring Warehouse Usage in UI
+
+Snowflake provides:
+
+Usage tab in Admin section
+
+to monitor:
+
+Compute credits
+Cloud services usage
+Warehouse consumption
+
+You can:
+
+Filter by warehouse
+Break down usage
+Analyze daily costs
+
 Snowflake Resource Monitors are governance objects used to monitor and control virtual warehouse credit consumption. They allow administrators to define credit quotas for warehouses or entire accounts and configure actions such as notifications, graceful suspension, or immediate suspension when thresholds are reached. Resource monitors support configurable reset frequencies such as daily, weekly, or monthly and help organizations prevent runaway compute costs while enforcing budget controls.
