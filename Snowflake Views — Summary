@@ -1,0 +1,296 @@
+Snowflake Views — Summary
+
+Snowflake supports multiple types of views:
+
+Standard Views
+Materialized Views
+Secure Views
+Secure Materialized Views
+1. Standard View
+
+A standard view:
+
+Stores only the SQL query definition
+Does NOT store data physically
+
+Example:
+
+CREATE VIEW vw_sales AS
+SELECT customer_id, amount
+FROM sales;
+
+When users query the view:
+
+Snowflake reads data from the underlying table.
+Key Points
+Advantages
+No storage cost
+Simplifies complex queries
+Restricts rows/columns
+Reusable logic
+Limitations
+Performance depends on source query
+Data retrieved from base table each time
+Important Exam Point
+
+If source table is dropped:
+
+View becomes invalid
+Queries fail with object does not exist error
+2. Materialized View
+
+A Materialized View:
+
+Stores query results physically
+Precomputed dataset
+Automatically refreshed
+
+Example:
+
+CREATE MATERIALIZED VIEW mv_sales AS
+SELECT customer_id, SUM(amount)
+FROM sales
+GROUP BY customer_id;
+Key Points
+Advantages
+Faster query performance
+Precomputed results
+Useful for expensive aggregations
+Limitations
+Storage cost exists
+Background maintenance cost exists
+Important Interview Point
+
+Snowflake automatically refreshes materialized views.
+
+Snowflake manages compute automatically.
+
+That makes Materialized Views:
+
+A serverless feature
+3. Secure Views
+
+A Secure View:
+
+Hides query definition from unauthorized users
+
+Example:
+
+CREATE SECURE VIEW secure_sales AS
+SELECT * FROM sales;
+Why Use Secure Views?
+
+Used for:
+
+Sensitive data
+PII protection
+Data sharing
+Regulatory compliance
+Important Security Behavior
+
+Without SECURE:
+
+Users may see view definition using:
+GET_DDL
+DESCRIBE VIEW
+SHOW VIEWS
+
+With SECURE:
+
+Unauthorized users cannot see the definition.
+4. Performance Impact of Secure Views
+
+Important interview/certification point:
+
+Secure views may perform slower.
+
+Reason:
+
+Some optimizer optimizations are disabled
+to avoid accidental data exposure.
+5. Standard View vs Materialized View
+Standard View	Materialized View
+Stores query only	Stores data physically
+No storage cost	Storage cost
+Query runs every time	Precomputed results
+Slower for heavy aggregations	Faster
+No refresh maintenance	Auto-maintained
+6. Secure View vs Standard View
+Standard View	Secure View
+Query definition visible	Hidden from unauthorized users
+Better performance	Slightly slower sometimes
+Normal optimizer behavior	Restricted optimizations
+7. Common Use Cases
+Standard Views
+Business reporting
+Reusable SQL
+Restricting columns
+Simplifying joins
+Materialized Views
+Heavy aggregations
+Dashboard acceleration
+External table optimization
+Performance tuning
+Secure Views
+Sharing sensitive data
+Data governance
+Secure data sharing
+Compliance requirements
+Interview Questions & Answers
+Beginner Questions
+1. What is a View in Snowflake?
+
+Expected answer:
+
+A view is a database object that stores a SQL query definition and presents data like a virtual table.
+
+2. Does a standard view store data physically?
+
+Expected answer:
+
+No
+3. Does a materialized view store data physically?
+
+Expected answer:
+
+Yes
+4. What is a materialized view?
+
+Expected answer:
+
+A materialized view stores precomputed query results physically for faster query performance.
+
+5. Why are materialized views faster?
+
+Expected answer:
+
+Because results are precomputed and stored physically.
+
+6. Are materialized views automatically refreshed?
+
+Expected answer:
+
+Yes
+7. Why are materialized views considered serverless?
+
+Expected answer:
+
+Snowflake manages refresh compute automatically.
+
+8. Does a standard view incur storage cost?
+
+Expected answer:
+
+No
+9. Does a materialized view incur storage cost?
+
+Expected answer:
+
+Yes
+10. What happens if the source table is dropped?
+
+Expected answer:
+
+Queries against the view fail.
+
+Secure View Questions
+11. What is a secure view?
+
+Expected answer:
+
+A secure view hides the query definition from unauthorized users.
+
+12. Why use secure views?
+
+Expected answer:
+
+Protect sensitive logic
+Prevent data leakage
+Compliance/security
+13. Can GET_DDL expose secure view definitions?
+
+Expected answer:
+
+Not to unauthorized users
+14. Why might secure views have worse performance?
+
+Expected answer:
+
+Some optimizer optimizations are disabled.
+
+Scenario Questions
+15. You need faster dashboard queries on aggregated data. Best solution?
+
+Expected answer:
+
+Materialized View
+16. You need to hide salary columns from users. Best solution?
+
+Expected answer:
+
+View or Secure View
+17. You need to securely share data with another team. Best solution?
+
+Expected answer:
+
+Secure View
+18. You need zero additional storage cost. Best option?
+
+Expected answer:
+
+Standard View
+19. Which view type is best for heavy aggregation queries?
+
+Expected answer:
+
+Materialized View
+20. Which view type may improve external table performance?
+
+Expected answer:
+
+Materialized View
+Tough Interview Questions
+21. Difference between table and view?
+Table	View
+Stores data	Usually stores query only
+Physical storage	Virtual layer
+DML operations	Query abstraction
+22. Difference between standard and materialized view?
+Standard View	Materialized View
+Virtual	Physical
+No refresh	Auto refresh
+Lower cost	Higher cost
+Slower	Faster
+23. Can views be joined with tables?
+
+Expected answer:
+
+Yes
+24. Can views use GROUP BY and ORDER BY?
+
+Expected answer:
+
+Yes
+25. Real-world use case for secure views?
+
+Expected answer:
+
+Finance data
+Healthcare data
+PII masking
+Cross-team secure sharing
+Rapid Fire Questions
+Question	Answer
+Standard view stores data?	No
+Materialized view stores data?	Yes
+Materialized view serverless?	Yes
+Standard view storage cost?	No
+Materialized view storage cost?	Yes
+Secure view hides SQL definition?	Yes
+Secure view may be slower?	Yes
+Views can join tables?	Yes
+Views support GROUP BY?	Yes
+Source table dropped affects view?	Yes
+Strong Final Interview Answer
+
+Snowflake supports Standard Views, Materialized Views, and Secure Views. Standard views store only query definitions and do not physically store data, making them cost efficient but dependent on runtime query execution. Materialized views physically store precomputed query results and are automatically refreshed by Snowflake, improving query performance for heavy aggregations and repeated queries. Secure views protect sensitive query logic by hiding definitions from unauthorized users, though they may have slightly lower performance because certain optimizer optimizations are disabled for security reasons.
