@@ -1,0 +1,178 @@
+Snowflake Storage Billing — Complete Guide
+
+Detailed Summary
+How Storage is Billed
+Snowflake calculates storage costs monthly based on the average number of on-disk bytes stored each day in your Snowflake account.
+
+Two Areas That Contribute to Storage Costs
+1. Database Table Data
+All three stages of the data lifecycle contribute to billing:
+Data Lifecycle StageDescriptionContributes to Cost?Active DataMost current, up-to-date micro-partitionsYESTime TravelOlder versions of micro-partitions retained for recoveryYESFail-SafeMicro-partitions Snowflake maintains for 7 days after Time TravelYES
+
+Important: A 90-day retention period gives powerful recovery capabilities but can significantly increase storage billing. Always weigh pros and cons when setting retention periods.
+
+2. Internal Stages
+
+Any files stored in internal stages contribute to storage costs
+Unlike table data, you have direct control over stage files
+Risk: uploading large uncompressed files and forgetting to delete them
+Best practice: clean up stage files after loading to avoid unnecessary billing
+
+
+How Snowflake Calculates Your Bill
+Every 24 hours
+→ Snowflake calculates average data stored that day
+
+End of Month
+→ Snowflake averages all daily figures across the month
+
+Final Bill
+→ Monthly average (in TB) × flat rate per TB
+
+What Affects the Rate Per Terabyte?
+Three factors influence the per-terabyte price:
+FactorOptionsCloud ProviderAWS, Azure, or GCPRegione.g., AWS London, AWS AP MumbaiPricing PlanOn-Demand or Capacity
+
+Real Billing Examples
+Example 1:
+
+Region: AWS London
+Plan: On-Demand
+Rate: $42 per TB
+Average stored: 15 TB
+Monthly bill: 15 × $42 = $630
+
+Example 2:
+
+Region: AWS AP Mumbai
+Plan: On-Demand
+Average stored: 14 TB
+Monthly bill: $644
+
+
+Key insight: Example 2 stores LESS data (14TB vs 15TB) but costs MORE ($644 vs $630) purely because of a different region. Region selection has a real financial impact.
+
+
+Key Cost Management Considerations
+ActionImpactSet high retention period (e.g. 90 days)Powerful recovery but higher storage costSet retention period to 0Disables Time Travel, reduces costUse Transient tablesNo Fail-Safe, max 1-day Time Travel — lower costUse Temporary tablesSession-only, no Fail-Safe — lowest costLeave large files in internal stagesUnnecessary storage billingClean up stage files after loadingReduces storage costs
+
+Complete Data Protection Feature Recap
+This concludes the Continuous Data Protection section covering:
+Time Travel    → Configurable retention (0–90 days), self-service recovery
+Fail-Safe      → Fixed 7 days, Snowflake Support only
+Cloning        → Zero-copy, metadata only, within one account
+Replication    → Physical copy, cross-account, disaster recovery
+
+Interview Questions & Answers
+
+Q1. How does Snowflake calculate monthly storage costs?
+
+Snowflake calculates storage costs in two steps:
+
+Every 24 hours, Snowflake calculates the average amount of data stored that day across both database table data and internal stages
+At the end of the month, Snowflake takes another average across all daily figures
+
+That final monthly average (in terabytes) is then multiplied by a flat rate per terabyte. This averaging approach means adding or removing data mid-month is fairly accounted for rather than being billed on a snapshot at one point in time.
+
+
+Q2. What are the two areas that contribute to Snowflake storage costs?
+
+1. Database Table Data — this includes ALL stages of the data lifecycle:
+
+Active micro-partitions (current data)
+Time Travel micro-partitions (older versions retained for recovery)
+Fail-Safe micro-partitions (7-day Snowflake-managed retention)
+
+2. Internal Stages — any files stored in internal stages contribute to billing. Unlike table data, the user has direct control over stage files and should clean them up after loading to avoid unnecessary costs.
+
+
+Q3. What three factors affect the per-terabyte storage rate in Snowflake?
+
+The storage rate per terabyte varies based on:
+
+Cloud Provider — AWS, Azure, or GCP
+Region — e.g., AWS London vs AWS AP Mumbai have different rates
+Pricing Plan — On-Demand (pay as you go) vs Capacity (pre-purchased, typically cheaper)
+
+This means two accounts storing identical amounts of data can have very different monthly bills purely based on where their account is deployed and their purchasing plan.
+
+
+Q4. Why can setting a 90-day retention period significantly increase storage costs?
+
+Because ALL three stages of the data lifecycle contribute to storage billing. With a 90-day retention period:
+
+Every time data is updated or deleted, the old micro-partitions are kept for up to 90 days in Time Travel storage
+After Time Travel expires, 7 more days of Fail-Safe storage are added
+For frequently updated tables, this means storing many versions of data simultaneously
+
+The trade-off is powerful recovery capabilities vs significantly higher storage bills. It is good practice to set shorter retention periods on large, frequently updated tables and longer periods only on critical data.
+
+
+Q5. Two accounts store different amounts of data but the second account pays more. How is this possible?
+
+This is entirely due to regional pricing differences. For example:
+
+AWS London: 15 TB × $42 = $630
+AWS AP Mumbai: 14 TB × $46 = $644
+
+The Mumbai account stores less data (14TB vs 15TB) but pays more ($644 vs $630) purely because the per-terabyte rate is higher in that region. This highlights the importance of region selection when setting up a Snowflake account, especially for large-scale data storage use cases.
+
+
+Q6. How do internal stages contribute to storage costs and how can you manage this?
+
+Any files uploaded to internal stages are billed as storage just like table data. Unlike table data (which Snowflake manages automatically), stage files are under the user's direct control. A common mistake is uploading large, uncompressed files to a stage and forgetting to delete them after loading — these continue to accumulate storage costs indefinitely.
+Best practices:
+
+Delete stage files immediately after a successful COPY INTO load
+Use compressed file formats before uploading
+Regularly audit internal stages for stale files
+Set up automated cleanup processes after data loading pipelines
+
+
+
+Q7. How do Transient and Temporary tables help reduce storage costs?
+
+Both table types reduce storage costs by limiting or eliminating the data protection stages:
+
+Transient tables — max 1-day Time Travel, NO Fail-Safe. Data passes directly out of storage after Time Travel expires, with no 7-day Fail-Safe retention
+Temporary tables — session-scoped only. Automatically dropped when the session ends, with no Fail-Safe
+
+For staging tables, ETL intermediary data, or any non-critical data, using transient or temporary tables instead of permanent tables can significantly reduce the storage bill.
+
+
+Q8. What is the difference between On-Demand and Capacity pricing plans for storage?
+
+
+On-Demand — pay as you go. No upfront commitment. Higher per-terabyte rate. Good for variable or unpredictable workloads.
+Capacity — pre-purchased storage commitment. Lower per-terabyte rate. Better value for predictable, large-scale storage needs.
+
+For example, On-Demand in AWS London is $42/TB. A Capacity plan for the same region would typically offer a lower rate, making it more cost-effective for organizations with stable, large storage requirements.
+
+
+Q9. A company has a large table that is updated frequently and has a 90-day retention period. They want to reduce storage costs without losing all data protection. What would you recommend?
+
+Several strategies can help:
+
+Reduce the retention period on the large table specifically (child object overrides parent) — even dropping from 90 to 30 days significantly reduces Time Travel storage
+Use Transient tables for intermediate or staging versions of the data — no Fail-Safe, max 1-day Time Travel
+Evaluate which tables truly need 90-day retention — apply long retention only to the most critical tables
+Clean up internal stages after every load cycle
+Monitor storage consumption regularly using SHOW TABLES and INFORMATION_SCHEMA to identify the largest consumers
+
+
+sql-- Check storage usage per table
+SELECT TABLE_NAME,
+       ACTIVE_BYTES / (1024*1024*1024) AS ACTIVE_GB,
+       TIME_TRAVEL_BYTES / (1024*1024*1024) AS TIME_TRAVEL_GB,
+       FAILSAFE_BYTES / (1024*1024*1024) AS FAILSAFE_GB
+FROM INFORMATION_SCHEMA.TABLE_STORAGE_METRICS
+ORDER BY (ACTIVE_BYTES + TIME_TRAVEL_BYTES + FAILSAFE_BYTES) DESC;
+
+Q10. Summarize the entire Continuous Data Protection feature set and how they relate to storage costs.
+FeatureDurationUser AccessStorage CostActive DataOngoingFull SQL accessYes — alwaysTime Travel0–90 days (configurable)Self-service via AT/BEFORE/UNDROPYes — during retentionFail-Safe7 days fixedSnowflake Support onlyYes — 7 daysCloningN/AInstant zero-copyZero until data divergesReplicationOngoing syncFull access in target accountYes — full physical copy
+
+The longer data stays in Time Travel and Fail-Safe, the more it costs. Cloning is the most storage-efficient option (zero-copy), while replication carries the highest storage overhead due to physically duplicating all data in another account.
+
+
+Quick Reference Cheat Sheet
+ConceptKey DetailBilling frequencyMonthlyCalculation methodDaily average → Monthly average × rate per TBTwo billing areasDatabase table data + Internal stagesTable data includesActive + Time Travel + Fail-Safe micro-partitionsRate factorsCloud provider + Region + Pricing planOn-Demand AWS London$42/TB (as of Nov 2021)Retention period impactHigher retention = more storage costCheapest table typeTemporary (session only, no Fail-Safe)Stage file riskForgotten large files = unnecessary billingBest cost strategyMatch retention period to actual recovery needs
