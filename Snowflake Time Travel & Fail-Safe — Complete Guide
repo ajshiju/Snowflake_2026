@@ -1,0 +1,271 @@
+Snowflake Time Travel & Fail-Safe — Complete Guide
+
+Summary
+Data Lifecycle in Snowflake
+Active Data → Time Travel → Fail-Safe → Permanently Gone
+(current)     (configurable)  (7 days)
+Three Stages:
+
+Active Data — current, up-to-date micro-partition versions
+Time Travel — outdated/deleted micro-partitions retained for a configurable period
+Fail-Safe — last-resort recovery maintained by Snowflake for 7 days after time travel expires
+
+
+Time Travel — Key Points
+
+Protects against accidental errors, system failures, and malicious acts
+Three main functions:
+
+UNDROP — restore dropped tables, schemas, databases
+Query historical data — view data as it was at a past point
+Clone from the past — combine time travel + cloning to copy old versions
+
+
+
+
+Retention Period Rules
+EditionMin DaysMax DaysStandard01Enterprise+090Temporary/Transient (all editions)01
+
+Default for all levels = 1 day
+Setting to 0 disables time travel for that object
+Can be set at account, database, schema, table level
+Child object takes precedence over parent if both are set
+
+
+Fail-Safe — Key Points
+
+Non-configurable — always exactly 7 days
+Only accessible by contacting Snowflake Support
+Intended for catastrophic events (hardware failure, security breach)
+Recovery can take hours to days
+Applies only to permanent objects (not transient or temporary)
+Both time travel and fail-safe data contribute to storage costs
+
+
+Syntax Reference
+Setting Retention Period
+sql-- Account level (requires ACCOUNTADMIN role)
+ALTER ACCOUNT SET DATA_RETENTION_TIME_IN_DAYS = 90;
+
+-- Database level
+ALTER DATABASE my_database SET DATA_RETENTION_TIME_IN_DAYS = 90;
+
+-- Schema level
+ALTER SCHEMA my_schema SET DATA_RETENTION_TIME_IN_DAYS = 30;
+
+-- Table level
+ALTER TABLE my_table SET DATA_RETENTION_TIME_IN_DAYS = 5;
+
+-- Disable time travel for a specific object
+ALTER TABLE my_table SET DATA_RETENTION_TIME_IN_DAYS = 0;
+
+-- Reset account level back to default
+ALTER ACCOUNT SET DATA_RETENTION_TIME_IN_DAYS = 1;
+
+Checking Retention Period
+sql-- Check databases and their retention periods
+SHOW DATABASES;
+
+-- Check tables including dropped ones still in retention
+SHOW TABLE HISTORY;
+
+-- Filter results using RESULT_SCAN
+SELECT "name", "retention_time", "dropped_on"
+FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()));
+
+UNDROP — Restore Dropped Objects
+sql-- Undrop a table
+UNDROP TABLE my_table;
+
+-- Undrop a schema
+UNDROP SCHEMA my_schema;
+
+-- Undrop a database
+UNDROP DATABASE my_database;
+
+Note: If an object with the same name already exists, an error is returned.
+
+
+AT — Query Historical Data (Inclusive)
+sql-- Using OFFSET (seconds back in time)
+SELECT * FROM my_table
+AT (OFFSET => -60 * 2);  -- 2 minutes ago
+
+-- Using TIMESTAMP (exact point in time)
+SELECT * FROM my_table
+AT (TIMESTAMP => '2024-01-15 10:00:00'::TIMESTAMP);
+
+-- Using STATEMENT ID (inclusive of that statement's changes)
+SELECT * FROM my_table
+AT (STATEMENT => '01b3f2e5-0000-1234-0000-ab98cd760000');
+
+BEFORE — Query Historical Data (Exclusive)
+sql-- Using STATEMENT ID (excludes changes made by that statement)
+-- BEFORE only supports STATEMENT parameter
+SELECT * FROM my_table
+BEFORE (STATEMENT => '01b3f2e5-0000-1234-0000-ab98cd760000');
+
+Restore Data Using Time Travel + CTAS
+sql-- Permanently restore truncated/deleted data
+CREATE OR REPLACE TABLE my_table AS
+SELECT * FROM my_table
+AT (OFFSET => -60 * 5);  -- restore from 5 minutes ago
+
+AT vs BEFORE — Key Difference
+sql-- Scenario: Statement X inserted 10 rows
+
+-- AT → INCLUDES those 10 rows
+SELECT * FROM my_table AT (STATEMENT => 'statement_x_id');
+
+-- BEFORE → EXCLUDES those 10 rows
+SELECT * FROM my_table BEFORE (STATEMENT => 'statement_x_id');
+
+Interview Questions & Answers
+
+Conceptual Questions
+Q1. What is Time Travel in Snowflake and what problems does it solve?
+
+Time Travel is a Snowflake feature that retains outdated or deleted micro-partitions for a configurable period, allowing users to access historical versions of data. It solves three critical problems:
+
+Accidental data loss — e.g., wrong DELETE or TRUNCATE
+Dropped objects — accidentally dropped tables, schemas, databases can be restored
+Auditing — ability to analyze data as it existed at any point in the past
+
+It works because micro-partitions are immutable — rather than deleting old partitions, Snowflake retains them in storage during the retention window.
+
+
+Q2. What are the three main functions of Time Travel?
+
+
+UNDROP — restore dropped tables, schemas, or databases to their most recent state
+Historical queries — query data as it existed at a specific point in the past using AT or BEFORE extensions
+Cloning from the past — combine time travel with Snowflake's cloning feature to create a copy of an object as it existed at a past point in time
+
+
+
+Q3. What is the difference between Time Travel and Fail-Safe?
+Time TravelFail-SafePurposeSelf-service data recoveryEmergency last-resort recoveryDuration0–90 days (configurable)7 days (fixed)AccessUser-controlled via SQLSnowflake Support onlySpeedImmediateHours to daysObjectsPermanent, transient (0–1 day)Permanent onlyConfigurableYesNo
+
+Q4. What is the data lifecycle in Snowflake from creation to permanent deletion?
+
+
+Active Data — current micro-partition versions serving live queries
+Time Travel — when data is updated or deleted, old micro-partitions move into time travel storage for the configured retention period
+Fail-Safe — after time travel expires, data enters a non-configurable 7-day fail-safe window managed exclusively by Snowflake
+Permanent Deletion — after fail-safe expires, data is permanently purged
+
+
+
+Technical Questions
+Q5. What is DATA_RETENTION_TIME_IN_DAYS and at what levels can it be set?
+
+It is the parameter that controls the time travel retention window — how many days Snowflake retains outdated micro-partitions. It can be set at four levels:
+
+Account — applies to all objects unless overridden (requires ACCOUNTADMIN)
+Database — overrides account setting for all child schemas and tables
+Schema — overrides database setting for all child tables
+Table — most granular; overrides all parent settings
+
+The child object always takes precedence over the parent. Default for all levels is 1 day.
+
+
+Q6. What is the maximum retention period by Snowflake edition?
+
+
+Standard Edition — max 1 day (same as default)
+Enterprise Edition and higher — max 90 days
+Temporary and Transient objects (all editions) — max 1 day (can be 0 or 1)
+Minimum across all editions — 0 days (disables time travel)
+
+
+
+Q7. What is the difference between AT and BEFORE in Time Travel queries?
+
+Both are SQL extensions to query historical data, but differ in inclusivity:
+
+AT — inclusive of the specified statement's changes. If a statement inserted 10 rows, using that statement ID with AT will return those 10 rows.
+BEFORE — exclusive of the specified statement's changes. Using the same insert statement ID with BEFORE would NOT include those 10 rows.
+
+Additionally, AT supports three input parameters: OFFSET, TIMESTAMP, and STATEMENT. BEFORE only supports STATEMENT.
+
+
+Q8. What are the three input parameters for the AT keyword?
+sql-- 1. OFFSET — number of seconds to look back
+SELECT * FROM orders AT (OFFSET => -3600);  -- 1 hour ago
+
+-- 2. TIMESTAMP — exact datetime
+SELECT * FROM orders AT (TIMESTAMP => '2024-06-01 12:00:00'::TIMESTAMP);
+
+-- 3. STATEMENT — specific query ID
+SELECT * FROM orders AT (STATEMENT => 'query_id_here');
+
+BEFORE only supports STATEMENT.
+
+
+Q9. What happens when you set DATA_RETENTION_TIME_IN_DAYS = 0?
+
+Setting it to zero effectively disables Time Travel for that object. Deleted or updated micro-partitions skip the time travel stage entirely and pass directly into Fail-Safe. This means:
+
+You cannot UNDROP the object
+You cannot query historical data
+If set at account level, all objects without an explicit retention period will have time travel disabled
+
+
+
+Q10. What happens if you try to UNDROP a table but a table with the same name already exists?
+
+Snowflake returns an error. You must either rename or drop the existing table first before executing UNDROP. You can use SHOW TABLE HISTORY to check which dropped objects are still within their retention period before proceeding.
+
+
+Q11. How does Fail-Safe differ from Time Travel in terms of object types supported?
+
+
+Time Travel — applies to permanent, transient, and temporary tables (though transient and temporary are capped at 1 day max retention)
+Fail-Safe — applies only to permanent objects. Transient and temporary objects have no Fail-Safe protection, which is why they're cheaper to store but less protected.
+
+
+
+Scenario-Based Questions
+Q12. A developer accidentally truncated a production table. How would you recover the data?
+sql-- Step 1: Find the truncate statement ID in query history
+-- Step 2: Use BEFORE to query data before the truncation
+
+SELECT * FROM orders
+BEFORE (STATEMENT => 'truncate_statement_id');
+
+-- Step 3: Permanently restore using CTAS
+CREATE OR REPLACE TABLE orders AS
+SELECT * FROM orders
+BEFORE (STATEMENT => 'truncate_statement_id');
+
+Use BEFORE here, not AT, because we want to exclude the truncation statement's changes.
+
+
+Q13. A table was dropped 3 days ago. The retention period is 5 days. Can you recover it?
+
+Yes. Since 3 days is within the 5-day retention period, the table is still in Time Travel. Run:
+
+sqlUNDROP TABLE my_table;
+
+This restores the most recent version of the table with all its data. If a table with the same name was recreated since, you'd need to rename or drop it first.
+
+
+Q14. Your company stores very large tables and wants to minimize storage costs. What Time Travel strategy would you recommend?
+
+Consider these strategies:
+
+Use Transient tables for staging or temporary data — they have a max retention of 1 day and no Fail-Safe, significantly reducing storage overhead
+Set DATA_RETENTION_TIME_IN_DAYS = 0 on objects where historical recovery is not needed
+Apply granular retention periods — short periods on large frequently-updated tables, longer periods on critical smaller tables
+Regularly review storage with SHOW TABLE HISTORY to identify objects consuming time travel storage unnecessarily
+
+
+
+Q15. If retention is set to 90 days at the database level and 10 days at the table level, which takes effect?
+
+The table-level setting takes precedence — 10 days. Child objects always override parent-level settings. The hierarchy from highest to lowest precedence is:
+Table > Schema > Database > Account
+
+
+Quick Reference Cheat Sheet
+ConceptKey DetailDefault retention1 day (all editions, all levels)Standard max1 dayEnterprise max90 daysTransient/Temporary max1 dayFail-Safe duration7 days (fixed, non-configurable)Fail-Safe accessSnowflake Support onlyUNDROP restoresMost recent version onlyAT vs BEFOREAT is inclusive, BEFORE is exclusiveBEFORE inputStatement ID onlyAT inputsOffset, Timestamp, StatementChild vs ParentChild setting always winsCost impactBoth Time Travel and Fail-Safe add to storage costs
