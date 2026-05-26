@@ -1,0 +1,116 @@
+Snowflake Virtual Warehouse — Important Syntax
+1. Create Warehouse
+CREATE WAREHOUSE my_wh
+WITH
+WAREHOUSE_SIZE = 'SMALL'
+AUTO_SUSPEND = 300
+AUTO_RESUME = TRUE
+INITIALLY_SUSPENDED = TRUE;
+2. Use Warehouse
+USE WAREHOUSE my_wh;
+3. Start / Resume Warehouse
+ALTER WAREHOUSE my_wh RESUME;
+4. Suspend Warehouse
+ALTER WAREHOUSE my_wh SUSPEND;
+5. Drop Warehouse
+DROP WAREHOUSE my_wh;
+6. Resize Warehouse
+Scale Up
+ALTER WAREHOUSE my_wh
+SET WAREHOUSE_SIZE = 'LARGE';
+7. Auto Suspend & Auto Resume
+ALTER WAREHOUSE my_wh
+SET AUTO_SUSPEND = 60
+AUTO_RESUME = TRUE;
+
+Meaning:
+
+Suspend after 60 seconds idle
+Automatically resume on query
+8. Show Warehouses
+SHOW WAREHOUSES;
+9. Describe Warehouse
+DESCRIBE WAREHOUSE my_wh;
+10. Multi-Cluster Warehouse Syntax
+CREATE WAREHOUSE multi_wh
+WITH
+WAREHOUSE_SIZE = 'MEDIUM'
+MIN_CLUSTER_COUNT = 1
+MAX_CLUSTER_COUNT = 3
+SCALING_POLICY = 'STANDARD';
+11. Set Multi-Cluster Later
+ALTER WAREHOUSE multi_wh
+SET
+MIN_CLUSTER_COUNT = 1
+MAX_CLUSTER_COUNT = 5;
+12. Warehouse Sizes
+XSMALL
+SMALL
+MEDIUM
+LARGE
+XLARGE
+2XLARGE
+3XLARGE
+4XLARGE
+13. Query Using Warehouse
+USE WAREHOUSE analytics_wh;
+
+SELECT * FROM sales;
+14. Create Warehouse with Comments
+CREATE WAREHOUSE etl_wh
+WITH
+WAREHOUSE_SIZE = 'MEDIUM'
+AUTO_SUSPEND = 120
+COMMENT = 'Warehouse for ETL jobs';
+15. Warehouse Cache Example
+SELECT * FROM sales;
+
+Repeated query on same warehouse:
+
+May use SSD cache for faster performance
+16. Check Running Queries
+SHOW QUERIES;
+17. Grant Warehouse Usage
+GRANT USAGE
+ON WAREHOUSE my_wh
+TO ROLE analyst_role;
+18. Revoke Warehouse Usage
+REVOKE USAGE
+ON WAREHOUSE my_wh
+FROM ROLE analyst_role;
+19. Example ETL Warehouse
+CREATE WAREHOUSE etl_wh
+WITH
+WAREHOUSE_SIZE = 'LARGE'
+AUTO_SUSPEND = 300
+AUTO_RESUME = TRUE;
+20. Example BI Warehouse
+CREATE WAREHOUSE bi_wh
+WITH
+WAREHOUSE_SIZE = 'SMALL'
+MIN_CLUSTER_COUNT = 1
+MAX_CLUSTER_COUNT = 3;
+Important Certification Syntax Points
+Auto Suspend
+AUTO_SUSPEND = seconds
+Auto Resume
+AUTO_RESUME = TRUE
+Suspend Manually
+ALTER WAREHOUSE my_wh SUSPEND;
+Resume Manually
+ALTER WAREHOUSE my_wh RESUME;
+Quick Interview Examples
+Scale Up Example
+ALTER WAREHOUSE my_wh
+SET WAREHOUSE_SIZE = 'XLARGE';
+
+Improves:
+
+Single query performance
+Scale Out Example
+ALTER WAREHOUSE my_wh
+SET MAX_CLUSTER_COUNT = 5;
+
+Improves:
+
+Concurrency
