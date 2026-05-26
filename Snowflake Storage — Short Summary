@@ -1,0 +1,51 @@
+
+Key Concepts
+Centralized Storage Layer
+
+Scalable layer holding table data organized by databases and schemas
+Built on cloud provider blob storage: S3 (AWS), Azure Blob Storage, or GCP Cloud Storage
+
+Data Ingestion & Format
+
+Data can be loaded via UI, INSERT statements, or COPY INTO <table>
+All ingested data is transformed into Snowflake's proprietary columnar format — compressed, encrypted, and optimized for analytics
+Both structured and semi-structured data go through the same reorganization process
+
+Post-Ingestion Access
+
+Once loaded, underlying files are fully managed by Snowflake — users have no direct file access
+Primary access method: SQL queries
+Data can also be exported as CSV, JSON, or Parquet
+
+Micro-Partitions
+
+Snowflake automatically partitions optimized data files into micro-partitions
+No static partitioning key required — it's fully automatic
+Improves analytical query performance transparently
+
+Stages
+
+Temporary holding areas for data files during the loading process
+Covered in depth in the Data Movement section
+
+Billing
+
+Both stages and centralized storage are billed based on cloud provider + region
+Flat rate per average terabytes stored per month
+
+
+Practice Questions
+Conceptual
+
+What is the purpose of the centralized storage layer in Snowflake?
+What happens to data when it is loaded into Snowflake's storage layer?
+Why can't users access the underlying data files after ingestion?
+
+Technical
+4. Name the three cloud provider storage backends Snowflake can use.
+5. What are the three methods by which data can be loaded into the storage layer?
+6. In what formats can table data be exported from Snowflake?
+Deep Understanding
+7. What are micro-partitions, and why are they beneficial compared to traditional static partitioning?
+8. How is Snowflake storage billed, and what two factors influence the rate?
+9. What is the role of a stage in the Snowflake data loading process?
