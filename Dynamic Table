@@ -1,0 +1,313 @@
+Snowflake Dynamic Tables — detailed notes with examples
+
+A Dynamic Table is like an automatically refreshed table created from a SQL query. Instead of writing a task + stream + merge manually, 
+Snowflake manages the refresh for you based on the table definition and TARGET_LAG.
+
+Snowflake supports INCREMENTAL, FULL, and AUTO refresh modes. 
+Incremental processes only changed rows, full recomputes the whole result, and auto lets Snowflake choose once at creation time. AUTO does not keep switching later.
+
+1. Basic syntax
+CREATE OR REPLACE DYNAMIC TABLE dt_customer_summary
+TARGET_LAG = '10 minutes'
+WAREHOUSE = compute_wh
+REFRESH_MODE = INCREMENTAL
+AS
+SELECT
+    customer_id,
+    COUNT(*) AS total_orders,
+    SUM(order_amount) AS total_amount,
+    MAX(order_date) AS latest_order_date
+FROM raw_orders
+GROUP BY customer_id;
+
+Meaning:
+
+TARGET_LAG = '10 minutes'
+
+means Snowflake tries to keep the dynamic table data no more than 10 minutes stale. It is not exactly “run every 10 minutes.” It is a freshness target.
+
+2. Simple example
+Base table
+CREATE OR REPLACE TABLE orders (
+    order_id INT,
+    customer_id INT,
+    order_amount NUMBER(10,2),
+    order_date DATE
+);
+Insert sample data
+INSERT INTO orders VALUES
+(1, 101, 100, '2026-05-01'),
+(2, 101, 200, '2026-05-02'),
+(3, 102, 150, '2026-05-03');
+Create dynamic table
+CREATE OR REPLACE DYNAMIC TABLE dt_orders_by_customer
+TARGET_LAG = '5 minutes'
+WAREHOUSE = compute_wh
+REFRESH_MODE = INCREMENTAL
+AS
+SELECT
+    customer_id,
+    COUNT(*) AS order_count,
+    SUM(order_amount) AS total_sales
+FROM orders
+GROUP BY customer_id;
+Query it
+SELECT * FROM dt_orders_by_customer;
+
+Result:
+
+CUSTOMER_ID	ORDER_COUNT	TOTAL_SALES
+101	2	300
+102	1	150
+
+Now insert a new order:
+
+INSERT INTO orders VALUES
+(4, 101, 50, '2026-05-04');
+
+Snowflake refreshes the dynamic table automatically based on TARGET_LAG.
+
+New result:
+
+CUSTOMER_ID	ORDER_COUNT	TOTAL_SALES
+101	3	350
+102	1	150
+3. Why use Dynamic Tables?
+
+Traditional way:
+
+Raw table
+ → Stream
+ → Task
+ → MERGE logic
+ → Target table
+
+Dynamic table way:
+
+Raw table
+ → Dynamic Table
+
+Snowflake handles refresh logic automatically.
+
+Good for:
+
+ETL / ELT transformations
+Silver and Gold layer tables
+Aggregations
+Data marts
+Slowly changing reporting tables
+Replacing some stream + task pipelines
+4. Target lag examples
+Refresh with 1-hour freshness
+CREATE OR REPLACE DYNAMIC TABLE dt_daily_sales
+TARGET_LAG = '1 hour'
+WAREHOUSE = compute_wh
+AS
+SELECT
+    order_date,
+    SUM(order_amount) AS daily_sales
+FROM orders
+GROUP BY order_date;
+
+This means:
+
+Snowflake tries to keep dt_daily_sales within 1 hour of source data.
+Minimum target lag
+
+Snowflake documentation says the minimum target lag is 60 seconds.
+
+TARGET_LAG = '60 seconds'
+5. Refresh modes
+A. Incremental refresh
+REFRESH_MODE = INCREMENTAL
+
+Only changed data is processed.
+
+Best when:
+
+Source table changes are small
+Query supports incremental refresh
+You want lower cost
+You want faster refresh
+
+Example:
+
+CREATE OR REPLACE DYNAMIC TABLE dt_customer_sales
+TARGET_LAG = '10 minutes'
+WAREHOUSE = compute_wh
+REFRESH_MODE = INCREMENTAL
+AS
+SELECT
+    customer_id,
+    SUM(order_amount) AS total_sales
+FROM orders
+GROUP BY customer_id;
+B. Full refresh
+REFRESH_MODE = FULL
+
+Snowflake recomputes the whole dynamic table every refresh.
+
+Best when:
+
+Query does not support incremental refresh
+Data volume is small
+Complex logic makes incremental refresh inefficient
+
+Example:
+
+CREATE OR REPLACE DYNAMIC TABLE dt_full_refresh_example
+TARGET_LAG = '1 hour'
+WAREHOUSE = compute_wh
+REFRESH_MODE = FULL
+AS
+SELECT
+    customer_id,
+    COUNT(DISTINCT order_id) AS distinct_orders
+FROM orders
+GROUP BY customer_id;
+C. Auto refresh mode
+REFRESH_MODE = AUTO
+
+Snowflake chooses INCREMENTAL or FULL at creation time. Important: once chosen, it does not keep changing automatically. If AUTO chooses full, refreshes remain full until you recreate the table.
+
+CREATE OR REPLACE DYNAMIC TABLE dt_auto_example
+TARGET_LAG = '30 minutes'
+WAREHOUSE = compute_wh
+REFRESH_MODE = AUTO
+AS
+SELECT
+    customer_id,
+    SUM(order_amount) AS total_sales
+FROM orders
+GROUP BY customer_id;
+6. Dynamic table chain example
+
+You can build multiple dynamic tables like a pipeline.
+
+raw_orders
+   ↓
+dt_clean_orders
+   ↓
+dt_customer_summary
+   ↓
+dt_sales_dashboard
+Step 1: Clean layer
+CREATE OR REPLACE DYNAMIC TABLE dt_clean_orders
+TARGET_LAG = DOWNSTREAM
+WAREHOUSE = compute_wh
+REFRESH_MODE = INCREMENTAL
+AS
+SELECT
+    order_id,
+    customer_id,
+    order_amount,
+    order_date
+FROM orders
+WHERE order_amount IS NOT NULL;
+
+TARGET_LAG = DOWNSTREAM means this table does not refresh on its own schedule. It refreshes when downstream dynamic tables need fresh data.
+
+Step 2: Summary layer
+CREATE OR REPLACE DYNAMIC TABLE dt_customer_summary
+TARGET_LAG = '15 minutes'
+WAREHOUSE = compute_wh
+REFRESH_MODE = INCREMENTAL
+AS
+SELECT
+    customer_id,
+    COUNT(*) AS total_orders,
+    SUM(order_amount) AS total_sales
+FROM dt_clean_orders
+GROUP BY customer_id;
+7. Manual refresh
+
+You can force refresh:
+
+ALTER DYNAMIC TABLE dt_customer_summary REFRESH;
+
+Useful for testing or troubleshooting.
+
+8. Suspend and resume
+
+Suspend:
+
+ALTER DYNAMIC TABLE dt_customer_summary SUSPEND;
+
+Resume:
+
+ALTER DYNAMIC TABLE dt_customer_summary RESUME;
+
+If a dynamic table is suspended too long, incremental refresh can fail because it depends on Time Travel history. Snowflake notes that if required historical change data has expired, you may need to recreate the dynamic table.
+
+9. Check dynamic table status
+SHOW DYNAMIC TABLES;
+
+Or:
+
+SHOW DYNAMIC TABLES LIKE 'dt_customer_summary';
+
+Get DDL:
+
+SELECT GET_DDL('DYNAMIC_TABLE', 'dt_customer_summary');
+10. Dynamic table vs materialized view
+Feature	Dynamic Table	Materialized View
+Use case	ETL pipelines, transformations	Query acceleration
+Supports complex transformations	More flexible	More limited
+Refresh control	Target lag	Snowflake managed
+Can build pipelines	Yes	Not really
+Replacement for tasks/streams	Sometimes	No
+
+Simple way to remember:
+
+Materialized View = speed up queries
+Dynamic Table = build automatic transformation pipelines
+11. Dynamic table vs task + stream
+Feature	Dynamic Table	Stream + Task
+Coding effort	Less	More
+Control	Less manual control	More control
+Merge logic	Snowflake handles refresh	You write MERGE
+Best for	Declarative transformations	Complex custom logic
+Scheduling	Target lag	CRON / interval
+12. Interview explanation
+
+You can say:
+
+A Snowflake Dynamic Table is a table whose contents are automatically refreshed based on a SQL query and target lag. It helps build ELT pipelines without manually creating streams, tasks, and merge logic. Snowflake supports incremental, full, and auto refresh modes. Incremental refresh processes only changed data, while full refresh recomputes the entire table.
+
+13. Real-world use case
+
+Example banking/commercial data pipeline:
+
+raw_transactions
+   ↓
+dt_clean_transactions
+   ↓
+dt_customer_daily_balance
+   ↓
+dt_risk_dashboard_summary
+Example
+CREATE OR REPLACE DYNAMIC TABLE dt_customer_daily_balance
+TARGET_LAG = '30 minutes'
+WAREHOUSE = compute_wh
+REFRESH_MODE = INCREMENTAL
+AS
+SELECT
+    customer_id,
+    transaction_date,
+    SUM(transaction_amount) AS daily_amount
+FROM raw_transactions
+WHERE transaction_status = 'POSTED'
+GROUP BY customer_id, transaction_date;
+
+This can support dashboards or data quality checks without manually scheduling every transformation.
+
+Key points to remember
+
+Dynamic tables are best for automatic Snowflake ELT pipelines.
+
+TARGET_LAG controls freshness.
+REFRESH_MODE controls how data is refreshed.
+INCREMENTAL is usually preferred for large tables.
+FULL recomputes everything.
+AUTO chooses once during creation.
+DOWNSTREAM is useful for chained pipelines.
