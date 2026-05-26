@@ -298,9 +298,9 @@ Example:
 
 CREATE TABLE test(id INT);
 41. Difference between DECLARE and LET?
-DECLARE	LET
-Declares variables before BEGIN	Declares inside BEGIN
-Explicit type definition	Type can be inferred
+DECLARE	                           LET
+Declares variables before BEGIN	   Declares inside BEGIN
+Explicit type definition	       Type can be inferred
 42. Why use procedural logic instead of plain SQL?
 
 Expected answer:
