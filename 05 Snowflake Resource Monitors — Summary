@@ -1,0 +1,323 @@
+Snowflake Resource Monitors — Summary
+What is a Resource Monitor?
+
+A Resource Monitor is a Snowflake object used to:
+
+Track and control warehouse credit consumption
+
+It helps prevent:
+
+Runaway compute costs
+What Can Resource Monitors Monitor?
+1. Individual Warehouses
+
+Example:
+
+Monitor ETL warehouse only
+2. Entire Account
+
+Example:
+
+Monitor all warehouses in account
+What Can Resource Monitors Do?
+
+When limits are reached:
+
+Send notifications
+Suspend warehouses
+Suspend immediately
+Important Certification Point
+
+Resource Monitors apply ONLY to:
+
+User-managed virtual warehouses
+
+NOT:
+
+Serverless features
+Cloud services
+Storage
+Who Can Create Resource Monitors?
+
+Only:
+
+ACCOUNTADMIN role
+Key Properties
+1. CREDIT_QUOTA
+
+Defines maximum credits allowed.
+
+Example:
+
+CREDIT_QUOTA = 100
+
+Meaning:
+
+100 credit limit
+2. FREQUENCY
+
+Determines when quota resets.
+
+Supported values:
+
+DAILY
+WEEKLY
+MONTHLY
+YEARLY
+NEVER
+Example
+FREQUENCY = WEEKLY
+
+Meaning:
+
+Credits reset every week
+NEVER Frequency
+FREQUENCY = NEVER
+
+Meaning:
+
+Quota never resets
+
+Credits accumulate until quota reached.
+
+3. START_TIMESTAMP
+
+Controls when monitoring begins.
+
+Example:
+
+START_TIMESTAMP = IMMEDIATELY
+
+or:
+
+START_TIMESTAMP = '2026-06-01 00:00'
+Trigger Actions
+
+Triggers consist of:
+
+Condition percentage
++
+Action
+Trigger Types
+1. NOTIFY
+
+Sends alert notification.
+
+Example:
+
+ON 75 PERCENT DO NOTIFY
+2. SUSPEND
+
+Waits for running queries to finish.
+
+Then:
+
+Suspends warehouse
+
+Example:
+
+ON 100 PERCENT DO SUSPEND
+3. SUSPEND_IMMEDIATE
+
+Immediately aborts running queries.
+
+Then suspends warehouse.
+
+Example:
+
+ON 110 PERCENT DO SUSPEND_IMMEDIATE
+Important Difference
+SUSPEND	SUSPEND_IMMEDIATE
+Waits for queries to finish	Immediately kills queries
+Graceful stop	Hard stop
+Create Resource Monitor Syntax
+CREATE RESOURCE MONITOR my_monitor
+WITH
+CREDIT_QUOTA = 100
+FREQUENCY = MONTHLY
+START_TIMESTAMP = IMMEDIATELY
+TRIGGERS
+ON 75 PERCENT DO NOTIFY
+ON 100 PERCENT DO SUSPEND
+ON 110 PERCENT DO SUSPEND_IMMEDIATE;
+Apply Monitor to Warehouse
+ALTER WAREHOUSE etl_wh
+SET RESOURCE_MONITOR = my_monitor;
+Apply Monitor at Account Level
+ALTER ACCOUNT
+SET RESOURCE_MONITOR = my_monitor;
+Remove Resource Monitor
+ALTER WAREHOUSE etl_wh
+UNSET RESOURCE_MONITOR;
+Show Resource Monitors
+SHOW RESOURCE MONITORS;
+Describe Resource Monitor
+DESCRIBE RESOURCE MONITOR my_monitor;
+Real-World Example
+Scenario
+
+Company budget:
+
+500 credits per month
+
+Policy:
+
+75% → Notify finance
+100% → Suspend ETL warehouse
+Example SQL
+CREATE RESOURCE MONITOR finance_monitor
+WITH
+CREDIT_QUOTA = 500
+FREQUENCY = MONTHLY
+TRIGGERS
+ON 75 PERCENT DO NOTIFY
+ON 100 PERCENT DO SUSPEND;
+Resource Monitor Interview Questions
+Beginner Questions
+1. What is a Resource Monitor?
+
+Expected answer:
+
+A Snowflake object used to monitor and control warehouse credit consumption.
+
+2. What does a Resource Monitor track?
+
+Expected answer:
+
+Warehouse credit usage
+3. Can Resource Monitors monitor serverless features?
+
+Expected answer:
+
+No
+4. Who can create Resource Monitors?
+
+Expected answer:
+
+ACCOUNTADMIN
+5. What is CREDIT_QUOTA?
+
+Expected answer:
+
+Maximum credits allowed before actions trigger.
+
+6. What does FREQUENCY control?
+
+Expected answer:
+
+When quota resets.
+
+7. Supported FREQUENCY values?
+
+Expected answer:
+
+DAILY
+WEEKLY
+MONTHLY
+YEARLY
+NEVER
+8. What happens with FREQUENCY = NEVER?
+
+Expected answer:
+
+Quota never resets
+Trigger Questions
+9. What actions can Resource Monitors perform?
+
+Expected answer:
+
+NOTIFY
+SUSPEND
+SUSPEND_IMMEDIATE
+10. Difference between SUSPEND and SUSPEND_IMMEDIATE?
+SUSPEND	SUSPEND_IMMEDIATE
+Waits for queries	Kills running queries
+Graceful stop	Hard stop
+11. What does NOTIFY do?
+
+Expected answer:
+
+Sends alert notification to account admins.
+
+Scenario Questions
+12. You want alert at 75% usage. Which trigger?
+
+Expected answer:
+
+ON 75 PERCENT DO NOTIFY
+13. You want warehouse to stop after budget exhausted.
+
+Expected answer:
+
+ON 100 PERCENT DO SUSPEND
+14. You want immediate stop even if queries running.
+
+Expected answer:
+
+ON 100 PERCENT DO SUSPEND_IMMEDIATE
+15. Company wants monthly warehouse budget control. Best feature?
+
+Expected answer:
+
+Resource Monitor
+Syntax Questions
+16. Syntax to create Resource Monitor?
+CREATE RESOURCE MONITOR my_monitor
+WITH
+CREDIT_QUOTA = 100
+FREQUENCY = MONTHLY
+TRIGGERS
+ON 75 PERCENT DO NOTIFY;
+17. Syntax to assign monitor to warehouse?
+ALTER WAREHOUSE my_wh
+SET RESOURCE_MONITOR = my_monitor;
+18. Syntax to monitor entire account?
+ALTER ACCOUNT
+SET RESOURCE_MONITOR = my_monitor;
+Tough Interview Questions
+19. Why are Resource Monitors important?
+
+Expected answer:
+
+Prevent runaway costs
+Enforce budgets
+Improve governance
+20. Why might SUSPEND_IMMEDIATE be dangerous?
+
+Expected answer:
+
+It aborts running queries immediately.
+
+21. Can Resource Monitors stop storage charges?
+
+Expected answer:
+
+No
+22. Why are Resource Monitors considered governance tools?
+
+Expected answer:
+
+They enforce spending controls across compute resources.
+
+23. Why might companies use different monitors for ETL vs BI?
+
+Expected answer:
+
+Different workloads
+Different budgets
+Different SLAs
+Rapid Fire Questions
+Question	Answer
+Resource Monitors track credits?	Yes
+Apply to serverless features?	No
+ACCOUNTADMIN required?	Yes
+FREQUENCY = NEVER resets quota?	No
+SUSPEND waits for queries?	Yes
+SUSPEND_IMMEDIATE kills queries?	Yes
+NOTIFY sends alerts?	Yes
+Can monitor account level?	Yes
+Can monitor single warehouse?	Yes
+Used for cost governance?	Yes
+Strong Final Interview Answer
+
+Snowflake Resource Monitors are governance objects used to monitor and control virtual warehouse credit consumption. They allow administrators to define credit quotas for warehouses or entire accounts and configure actions such as notifications, graceful suspension, or immediate suspension when thresholds are reached. Resource monitors support configurable reset frequencies such as daily, weekly, or monthly and help organizations prevent runaway compute costs while enforcing budget controls.
